@@ -1,7 +1,15 @@
-import { Anchor, Container, Text, Title, Center } from '@mantine/core';
+"use client"
+
+import { Anchor, Container, Text, Title, Center, Button } from '@mantine/core';
 import classes from './Welcome.module.css';
+import { health } from '@/lib/api/health';
 
 export function Welcome() {
+
+  const checkHealth = async () => {
+    const response = await health();
+    console.log(response);
+  };
   return (
     <Center component="main" className={classes.center}>
         <Container className={classes.container}>
@@ -19,6 +27,9 @@ export function Welcome() {
             </Anchor>
             . To get started edit page.tsx file.
         </Text>
+
+
+        <Button onClick={checkHealth} mt={20}>Check Health</Button>
     </Container>
     </Center>
   );
