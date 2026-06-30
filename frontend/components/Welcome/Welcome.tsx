@@ -2,14 +2,15 @@
 
 import { Anchor, Container, Text, Title, Center, Button } from '@mantine/core';
 import classes from './Welcome.module.css';
-import { health } from '@/lib/api/health';
+import { useRouter } from 'next/navigation';
 
 export function Welcome() {
-
-  const checkHealth = async () => {
-    const response = await health();
-    console.log(response);
+  const router = useRouter();
+  
+  const handleClick = () => {
+    router.push('/login');
   };
+
   return (
     <Center component="main" className={classes.center}>
         <Container className={classes.container}>
@@ -29,7 +30,7 @@ export function Welcome() {
         </Text>
 
 
-        <Button onClick={checkHealth} mt={20}>Check Health</Button>
+        <Button onClick={handleClick} mt={20}>Login</Button>
     </Container>
     </Center>
   );

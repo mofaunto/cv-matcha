@@ -1,14 +1,14 @@
+import React from 'react';
 import '@mantine/core/styles.css';
 import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
-import React from 'react';
 import { mantineTheme } from '@/theme';
 
 export const metadata = {
-  title: 'Mantine Next.js template',
-  description: 'I am using Mantine with Next.js!',
+  title: 'CV Matcha',
+  description: 'Get matched to your dream job with auto generated CVs',
 };
 
-export default function RootLayout({ children }: { children: any }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
