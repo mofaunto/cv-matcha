@@ -1,7 +1,7 @@
 import React from 'react';
 import '@mantine/core/styles.css';
-import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
-import { mantineTheme } from '@/theme';
+import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
+import { Providers } from './providers';
 
 export const metadata = {
   title: 'CV Matcha',
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <MantineProvider theme={mantineTheme}>{children}</MantineProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

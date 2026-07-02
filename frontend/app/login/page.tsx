@@ -1,16 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/auth-client';
 import { Button, TextInput, Container, Title, Stack, Group } from '@mantine/core';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleCredentialsLogin = async () => {
+  if (session) redirect('/feed');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     await authClient.signIn.email({ email, password });
     router.push('/feed');
   };
@@ -18,25 +22,37 @@ export default function LoginPage() {
   return (
     <Container size="xs" mt="xl">
       <Title order={2} mb="md">Sign in</Title>
-      <Stack>
-        <TextInput label="Email" value={email} onChange={e => setEmail(e.target.value)} />
-        <TextInput label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-        <Button onClick={handleCredentialsLogin}>Sign in with Email</Button>
-        <Group>
-          <Button variant="outline" onClick={() => authClient.signIn.social({ provider: 'discord' })}>
-            Discord
-          </Button>
-          <Button variant="outline" onClick={() => authClient.signIn.social({ provider: 'github' })}>
-            GitHub
-          </Button>
-        </Group>
+      <form onSubmit={handleSubmit}>
+        <Stack>
+          <TextInput
+            label="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
+          <TextInput
+            label="Password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          <Button type="submit">Sign in with Email</Button>
+        </Stack>
+      </form>
 
-        <Group>
-          <Button variant="outline" onClick={() => router.push('/register')}>
-            Register
-          </Button>
-        </Group>
-      </Stack>
+      <Group mt="md">
+        <Button variant="outline" onClick={() => authClient.signIn.social({ provider: 'discord' })}>
+          Discord
+        </Button>
+        <Button variant="outline" onClick={() => authClient.signIn.social({ provider: 'github' })}>
+          GitHub
+        </Button>
+      </Group>
+
+      <Group mt="md">
+        <Button variant="outline" onClick={() => router.push('/register')}>
+          Register
+        </Button>
+      </Group>
     </Container>
   );
 }
