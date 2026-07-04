@@ -21,11 +21,6 @@ const EnvSchema = z.object({
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
 
-const parsed = EnvSchema.safeParse(process.env);
-if (!parsed.success) {
-  console.error('Missing env vars:', parsed.error.flatten().fieldErrors);
-  process.exit(1);
-}
-export default parsed.data;
+export default EnvSchema.parse(process.env);
 
 export const dbEnv = DBEnvSchema.parse(process.env);
