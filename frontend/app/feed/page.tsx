@@ -15,8 +15,8 @@ export default function FeedPage() {
   const updateRole = useUpdateRole();
   const { t, locale, setLocale } = useLanguage();
 
-  // console.log('session:', session);
-  // console.log('user:', user);
+  console.log('session:', session);
+  console.log('user:', user);
 
   if (isPending || isLoading) return <Text>Loading...</Text>;
   if (!session) redirect('/login');

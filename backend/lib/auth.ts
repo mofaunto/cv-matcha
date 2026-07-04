@@ -8,9 +8,7 @@ export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: 'sqlite',
-    schema: {
-      ...schema,
-    },
+    schema: { ...schema },
   }),
   socialProviders: {
     discord: {
@@ -24,21 +22,29 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    passwordValidator(password: string) {
-      if (password.length < 8) return false;
-      const hasUpper = /[A-Z]/.test(password);
-      const hasLower = /[a-z]/.test(password);
-      const hasDigit = /[0-9]/.test(password);
-      const hasSpecial = /[^A-Za-z0-9]/.test(password);
-      return hasUpper && hasLower && hasDigit && hasSpecial;
-    },
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
   },
+  trustedOrigins: [env.FRONTEND_URL, env.BETTER_AUTH_URL],
   advanced: {
     ipAddress: {
       disableIpTracking: true,
     },
+    cookies: {
+      session: {
+        attributes: {
+          sameSite: 'none',
+          secure: true,
+        },
+      },
+      csrf: {
+        attributes: {
+          sameSite: 'none',
+          secure: true,
+        },
+      },
+    },
   },
-  trustedOrigins: [env.FRONTEND_URL, env.BETTER_AUTH_URL],
 });
 
 export type AuthInstance = typeof auth;
