@@ -1,5 +1,5 @@
 import { defineConfig } from 'drizzle-kit';
-import env from 'lib/utils/env';
+import { dbEnv } from './lib/utils/env';
 
 export default defineConfig({
   out: './lib/db/migrations',
@@ -7,8 +7,7 @@ export default defineConfig({
   casing: 'snake_case',
   dialect: 'turso',
   dbCredentials: {
-    url: env.TURSO_DATABASE_URL,
-    authToken:
-      env.NODE_ENV === 'development' ? undefined : env.TURSO_AUTH_TOKEN,
+    url: dbEnv.TURSO_DATABASE_URL,
+    authToken: dbEnv.TURSO_AUTH_TOKEN,
   },
 });
