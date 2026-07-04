@@ -33,7 +33,12 @@ export const auth = betterAuth({
       return hasUpper && hasLower && hasDigit && hasSpecial;
     },
   },
-  trustedOrigins: [env.FRONTEND_URL],
+  advanced: {
+    ipAddress: {
+      disableIpTracking: true,
+    },
+  },
+  trustedOrigins: [env.FRONTEND_URL, env.BETTER_AUTH_URL],
 });
 
 export type AuthInstance = typeof auth;
