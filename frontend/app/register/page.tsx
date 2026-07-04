@@ -4,14 +4,20 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/auth-client';
 import {
+  Anchor,
   Button,
-  TextInput,
-  Container,
-  Title,
-  Stack,
-  Alert,
+  Center,
+  Checkbox,
+  Group,
+  Paper,
+  PaperProps,
   PasswordInput,
+  Stack,
+  Text,
+  TextInput,
+  Alert,
 } from '@mantine/core';
+import { useForm } from '@mantine/form';
 
 function getPasswordStrength(password: string) {
   if (password.length < 8) return { valid: false, message: 'At least 8 characters' };
@@ -22,101 +28,130 @@ function getPasswordStrength(password: string) {
   return { valid: true, message: 'Strong' };
 }
 
-export default function RegisterPage() {
+export default function RegisterPage(props: PaperProps) {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const { data: session } = authClient.useSession();
   if (session) router.push('/feed');
 
-  const passwordFeedback = getPasswordStrength(password);
-  const passwordsMatch = password === confirmPassword;
+  const form = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      terms: false,
+    },
+    validate: {
+      name: (val) => (val.trim().length > 0 ? null : 'Name is required'),
+      email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
+      password: (val) => {
+        const strength = getPasswordStrength(val);
+        return strength.valid ? null : strength.message;
+      },
+      confirmPassword: (val, values) =>
+        val !== values.password ? 'Passwords do not match' : null,
+      terms: (val) => (val ? null : 'You must accept the terms'),
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (values: typeof form.values) => {
     setError(null);
-
-    if (!passwordFeedback.valid) {
-      setError('Password is too weak: ' + passwordFeedback.message);
-      return;
-    }
-    if (!passwordsMatch) {
-      setError('Passwords do not match');
-      return;
-    }
-
     setLoading(true);
     try {
-      await authClient.signUp.email({ email, password, name });
+      await authClient.signUp.email({
+        email: values.email,
+        password: values.password,
+        name: values.name,
+      });
       router.push('/feed');
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        const message = error?.message || 'Registration failed. Please try again.';
-        setError(message);
-      }
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+          const message = err?.message || 'Something went wrong with registration.';
+          setError(message);
+        } else {
+            console.error('An unknown error occurred');
+        }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container size="xs" mt="xl">
-      <Title order={2} mb="md">
-        Create account
-      </Title>
-      <form onSubmit={handleSubmit}>
-        <Stack>
-          {error && (
-            <Alert color="red" onClose={() => setError(null)} withCloseButton>
-              {error}
-            </Alert>
-          )}
+    <Center w="100%" h="100vh">
+      <Paper w="100%" maw="400px" radius="md" p="xl" withBorder {...props}>
+        <Text size="lg" fw={500} ta="center" mb="md">
+          Create Account
+        </Text>
 
-          <TextInput
-            label="Name"
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-            required
-          />
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack>
+            {error && (
+              <Alert color="red" onClose={() => setError(null)} withCloseButton>
+                {error}
+              </Alert>
+            )}
 
-          <TextInput
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
-            required
-          />
+            <TextInput
+              required
+              label="Name"
+              placeholder="Your name"
+              {...form.getInputProps('name')}
+              radius="md"
+            />
 
-          <PasswordInput
-            label="Password"
-            value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
-            required
-            description={password.length > 0 ? passwordFeedback.message : undefined}
-          />
+            <TextInput
+              required
+              label="Email"
+              placeholder="hello@mantine.dev"
+              {...form.getInputProps('email')}
+              radius="md"
+            />
 
-          <PasswordInput
-            label="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.currentTarget.value)}
-            required
-            error={
-              confirmPassword.length > 0 && !passwordsMatch
-                ? 'Passwords do not match'
-                : undefined
-            }
-          />
+            <PasswordInput
+              required
+              label="Password"
+              placeholder="Your password"
+              {...form.getInputProps('password')}
+              radius="md"
+              description={
+                form.values.password.length > 0
+                  ? getPasswordStrength(form.values.password).message
+                  : undefined
+              }
+            />
 
-          <Button type="submit" loading={loading}>
-            Register
-          </Button>
-        </Stack>
-      </form>
-    </Container>
+            <PasswordInput
+              required
+              label="Confirm Password"
+              placeholder="Repeat your password"
+              {...form.getInputProps('confirmPassword')}
+              radius="md"
+            />
+
+            <Checkbox
+              label="I accept the terms and conditions"
+              {...form.getInputProps('terms', { type: 'checkbox' })}
+            />
+          </Stack>
+
+          <Group justify="space-between" mt="xl">
+            <Anchor
+              component="button"
+              type="button"
+              onClick={() => router.push('/login')}
+              size="xs"
+            >
+              Already have an account? Login
+            </Anchor>
+            <Button type="submit" radius="xl" loading={loading}>
+              Register
+            </Button>
+          </Group>
+        </form>
+      </Paper>
+    </Center>
   );
 }
