@@ -40,10 +40,20 @@ export default function LoginPage() {
       </form>
 
       <Group mt="md">
-        <Button variant="outline" onClick={() => authClient.signIn.social({ provider: 'discord' })}>
+        <Button variant="outline" onClick={() =>
+            authClient.signIn.social({
+              provider: 'discord',
+              callbackURL: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/feed`,
+            })
+          }>
           Discord
         </Button>
-        <Button variant="outline" onClick={() => authClient.signIn.social({ provider: 'github' })}>
+        <Button variant="outline" onClick={() =>
+          authClient.signIn.social({
+            provider: 'github',
+            callbackURL: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/feed`,
+          })
+        }>
           GitHub
         </Button>
       </Group>
