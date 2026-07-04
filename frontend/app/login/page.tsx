@@ -20,11 +20,14 @@ import {
 import { useForm } from '@mantine/form';
 import { DiscordButton } from '@/components/common/buttons/DiscordButton';
 import { GithubButton } from '@/components/common/buttons/GithubButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { LanguagePicker } from '@/components/common/selectors/LanguagePicker';
 
 export default function LoginPage(props: PaperProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t, locale, setLocale } = useLanguage();
 
   const { data: session } = authClient.useSession();
   if (session) router.push('/feed');
@@ -72,9 +75,12 @@ export default function LoginPage(props: PaperProps) {
   return (
     <Center w="100%" h="100vh">
       <Paper w="100%" maw="400px" radius="md" p="xl" withBorder {...props}>
-        <Text size="lg" fw={500} ta="center" mb="md">
-          Sign In
-        </Text>
+        <Group justify="space-between" align="center" mb="md">
+          <Text size="lg" fw={500} ta="center">
+            {t.auth.signIn}
+          </Text>
+          <LanguagePicker locale={locale} onChange={setLocale} />
+        </Group>
 
         <Group grow mb="md">
           <DiscordButton radius="xl" bg="blue" onClick={() => handleSocialLogin('discord')}>
@@ -86,7 +92,7 @@ export default function LoginPage(props: PaperProps) {
         </Group>
 
         <Divider
-          label="Or continue with email"
+          label={t.auth.orContinueWith}
           labelPosition="center"
           my="lg"
         />
@@ -101,15 +107,15 @@ export default function LoginPage(props: PaperProps) {
 
             <TextInput
               required
-              label="Email"
-              placeholder="hello@mantine.dev"
+              label={t.auth.email}
+              placeholder="hello@example.dev"
               {...form.getInputProps('email')}
               radius="md"
             />
 
             <PasswordInput
               required
-              label="Password"
+              label={t.auth.password}
               placeholder="Your password"
               {...form.getInputProps('password')}
               radius="md"
@@ -123,10 +129,10 @@ export default function LoginPage(props: PaperProps) {
               onClick={() => router.push('/register')}
               size="xs"
             >
-              Don&apos;t have an account? Register
+              {t.auth.noAccount}
             </Anchor>
             <Button type="submit" radius="xl" loading={loading}>
-              Login
+              {t.auth.login}
             </Button>
           </Group>
         </form>

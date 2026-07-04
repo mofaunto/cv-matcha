@@ -5,9 +5,11 @@ import { Button, Container, Group, Image, List, Text, ThemeIcon, Title, Center }
 import image from './image.svg';
 import { useRouter } from 'next/navigation';
 import classes from './Welcome.module.css';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export function Welcome() {
   const router = useRouter();
+  const { t } = useLanguage();
   
   const handleClick = () => {
     router.push('/login');
@@ -19,14 +21,14 @@ export function Welcome() {
         <div className={classes.inner}>
           <div className={classes.content}>
             <Title className={classes.title}>
-              Find your <span className={classes.highlight}>dream job / dream candidate</span> with <span className={classes.highlightTitle}>CV Matcha</span>
+              {t.landing.title1}<span className={classes.highlight}>{t.landing.title2}</span>{t.landing.title3}<span className={classes.highlightTitle}>{t.landing.title4}</span>
             </Title>
             <Text mt="md">
-              Whether you are looking for a job, or looking for a candidate, CV Matcha is the perfect solution for you. Our platform uses advanced algorithms to match job seekers with the best job opportunities and employers with the most suitable candidates.
+              {t.landing.subheading}
             </Text>
 
             <List
-              mt={30}
+              mt={32}
               spacing="sm"
               size="sm"
               icon={
@@ -36,19 +38,19 @@ export function Welcome() {
               }
             >
               <List.Item>
-                <b>Attribute Library</b> – Create reusable structured data across profiles, positions, and CVs.
+                <b>{t.landing.list_item_1_1}</b> {t.landing.list_item_1_2}
               </List.Item>
               <List.Item>
-                <b>Customizable positions</b> – customizable templates for various job positions.
+                <b>{t.landing.list_item_2_1}</b> {t.landing.list_item_2_2}
               </List.Item>
               <List.Item>
-                <b>CV Generation</b> – generate CVs automatically based on candidate profile data and attributes.
+                <b>{t.landing.list_item_3_1}</b> {t.landing.list_item_3_2}
               </List.Item>
             </List>
 
             <Group mt={32}>
               <Button radius="xl" size="md" className={classes.control} onClick={handleClick}>
-                Get Started
+                {t.landing.getStarted}
               </Button>
             </Group>
           </div>

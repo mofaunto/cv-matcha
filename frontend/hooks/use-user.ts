@@ -21,3 +21,14 @@ export const useUpdateRole = () => {
     },
   });
 };
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { theme?: 'light' | 'dark'; language?: string; name?: string }) =>
+      apiClient.patch('/api/users/me', body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    },
+  });
+};

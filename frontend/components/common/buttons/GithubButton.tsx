@@ -3,6 +3,6 @@ import { IconBrandGithub } from '@tabler/icons-react';
 
 export function GithubButton(props: ButtonProps & React.ComponentPropsWithoutRef<'button'>) {
   return (
-    <Button leftSection={<IconBrandGithub size={16} />} variant="default" {...props} />
+    <Button leftSection={<IconBrandGithub size={16} />} {...props} />
   );
 }

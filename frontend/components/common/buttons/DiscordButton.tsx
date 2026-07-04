@@ -8,5 +8,5 @@ function DiscordIcon() {
 }
 
 export function DiscordButton(props: ButtonProps & React.ComponentPropsWithoutRef<'button'>) {
-  return <Button leftSection={<DiscordIcon />} variant="default" {...props} />;
+  return <Button leftSection={<DiscordIcon />} {...props} />;
 }

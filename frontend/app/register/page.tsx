@@ -18,6 +18,8 @@ import {
   Alert,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { LanguagePicker } from '@/components/common/selectors/LanguagePicker';
 
 function getPasswordStrength(password: string) {
   if (password.length < 8) return { valid: false, message: 'At least 8 characters' };
@@ -32,6 +34,7 @@ export default function RegisterPage(props: PaperProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t, locale, setLocale } = useLanguage();
 
   const { data: session } = authClient.useSession();
   if (session) router.push('/feed');
@@ -82,9 +85,12 @@ export default function RegisterPage(props: PaperProps) {
   return (
     <Center w="100%" h="100vh">
       <Paper w="100%" maw="400px" radius="md" p="xl" withBorder {...props}>
-        <Text size="lg" fw={500} ta="center" mb="md">
-          Create Account
-        </Text>
+        <Group justify="space-between" align="center" mb="md">
+          <Text size="lg" fw={500} ta="center">
+            {t.auth.register}
+          </Text>
+          <LanguagePicker locale={locale} onChange={setLocale} />
+        </Group>
 
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack>
@@ -96,24 +102,24 @@ export default function RegisterPage(props: PaperProps) {
 
             <TextInput
               required
-              label="Name"
-              placeholder="Your name"
+              label={t.auth.name}
+              placeholder={t.auth.name}
               {...form.getInputProps('name')}
               radius="md"
             />
 
             <TextInput
               required
-              label="Email"
-              placeholder="hello@mantine.dev"
+              label={t.auth.email}
+              placeholder="hello@example.dev"
               {...form.getInputProps('email')}
               radius="md"
             />
 
             <PasswordInput
               required
-              label="Password"
-              placeholder="Your password"
+              label={t.auth.password}
+              placeholder={t.auth.password}
               {...form.getInputProps('password')}
               radius="md"
               description={
@@ -125,14 +131,14 @@ export default function RegisterPage(props: PaperProps) {
 
             <PasswordInput
               required
-              label="Confirm Password"
-              placeholder="Repeat your password"
+              label={t.auth.confirmPassword}
+              placeholder={t.auth.confirmPassword}
               {...form.getInputProps('confirmPassword')}
               radius="md"
             />
 
             <Checkbox
-              label="I accept the terms and conditions"
+              label={t.auth.terms}
               {...form.getInputProps('terms', { type: 'checkbox' })}
             />
           </Stack>
@@ -144,10 +150,10 @@ export default function RegisterPage(props: PaperProps) {
               onClick={() => router.push('/login')}
               size="xs"
             >
-              Already have an account? Login
+              {t.auth.alreadyHaveAccount}
             </Anchor>
             <Button type="submit" radius="xl" loading={loading}>
-              Register
+              {t.auth.register}
             </Button>
           </Group>
         </form>
