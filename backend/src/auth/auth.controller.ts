@@ -6,7 +6,7 @@ import { auth } from '../../lib/auth';
 export class AuthController {
   @All('*')
   async handleAuth(@Req() req: Request, @Res() res: Response) {
-    const url = `http://${req.headers.host ?? 'localhost'}${req.url}`;
+    const url = `https://${req.headers.host}${req.url}`;
     const webRequest = new Request(url, {
       method: req.method,
       headers: new Headers(req.headers as Record<string, string>),
@@ -15,9 +15,20 @@ export class AuthController {
           ? JSON.stringify(req.body)
           : undefined,
     });
+
     const response = await auth.handler(webRequest);
+
     res.status(response.status);
-    response.headers.forEach((value, key) => res.setHeader(key, value));
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase() === 'set-cookie') return;
+      res.setHeader(key, value);
+    });
+
+    const setCookie = response.headers.getSetCookie?.();
+    if (setCookie && setCookie.length > 0) {
+      res.setHeader('Set-Cookie', setCookie);
+    }
+
     res.send(await response.text());
   }
 }
