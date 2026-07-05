@@ -26,23 +26,23 @@ export const auth = betterAuth({
     maxPasswordLength: 128,
   },
   trustedOrigins: [env.FRONTEND_URL, env.BETTER_AUTH_URL],
+  cookies: {
+    sessionToken: {
+      attributes: {
+        sameSite: 'none',
+        secure: true,
+      },
+    },
+    csrfToken: {
+      attributes: {
+        sameSite: 'none',
+        secure: true,
+      },
+    },
+  },
   advanced: {
     ipAddress: {
       disableIpTracking: true,
-    },
-    cookies: {
-      session: {
-        attributes: {
-          sameSite: 'none',
-          secure: true,
-        },
-      },
-      csrf: {
-        attributes: {
-          sameSite: 'none',
-          secure: true,
-        },
-      },
     },
   },
 });
