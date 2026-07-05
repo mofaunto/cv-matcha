@@ -37,13 +37,12 @@ export class AuthController {
 
     const setCookie = response.headers.getSetCookie?.();
     if (setCookie && setCookie.length > 0) {
-      console.log('Set-Cookie header count:', setCookie.length);
-      setCookie.forEach((cookie, i) => {
-        console.log(`  Cookie ${i}: ${cookie}`);
-      });
-      res.setHeader('Set-Cookie', setCookie);
-    } else {
-      console.log('No Set-Cookie header found!');
+      const fixedCookies = setCookie.map((cookie) =>
+        cookie
+          .replace(/;\s*SameSite=\w+/i, '; SameSite=None')
+          .replace(/;\s*Secure/i, '; Secure'),
+      );
+      res.setHeader('Set-Cookie', fixedCookies);
     }
 
     const body = await response.text();
