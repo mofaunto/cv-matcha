@@ -27,9 +27,6 @@ export const user = sqliteTable('user', {
   isBlocked: integer('is_blocked', { mode: 'boolean' })
     .default(false)
     .notNull(),
-  setupCompleted: integer('setup_completed', { mode: 'boolean' })
-    .default(false)
-    .notNull(),
 });
 
 export const session = sqliteTable(

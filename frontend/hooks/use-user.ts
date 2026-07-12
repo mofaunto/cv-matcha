@@ -12,16 +12,6 @@ export const useCurrentUser = () => {
   });
 };
 
-export const useUpdateRole = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (role: string) => apiClient.patch('/api/users/me/role', { role }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-    },
-  });
-};
-
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({

@@ -5,6 +5,7 @@ import {
   Body,
   UseGuards,
   Req,
+  Param,
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import type { AuthenticatedRequest } from '../auth/auth.guard';
 import db from '../../lib/db';
 import { user as userTable } from '../../lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
+import { RolesGuard, Roles } from '../auth/roles.guard';
 
 @Controller('api/users')
 export class UsersController {
@@ -36,7 +38,6 @@ export class UsersController {
       theme: user.theme,
       language: user.language,
       isBlocked: user.isBlocked,
-      setupCompleted: user.setupCompleted,
     };
   }
 
@@ -61,54 +62,40 @@ export class UsersController {
     return { success: true };
   }
 
-  @UseGuards(AuthGuard)
-  @Patch('me/role')
-  async updateRole(
+  // Admin‑only: change a user's role
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch(':id/role')
+  async setUserRole(
     @Req() req: AuthenticatedRequest,
+    @Param('id') userId: string,
     @Body() body: { role: 'candidate' | 'recruiter' | 'admin' },
   ) {
-    const userId = req.user!.id;
-
-    const [currentUser] = await db
-      .select({ setupCompleted: userTable.setupCompleted })
-      .from(userTable)
-      .where(eq(userTable.id, userId));
-
-    if (!currentUser) throw new BadRequestException('User not found');
-    if (currentUser.setupCompleted) {
-      throw new BadRequestException('Setup already completed');
-    }
-
-    const allowedRoles = ['candidate', 'recruiter', 'admin'] as const;
+    const allowedRoles = ['candidate', 'recruiter', 'admin'];
     if (!allowedRoles.includes(body.role)) {
       throw new BadRequestException('Invalid role');
     }
 
-    if (body.role === 'admin') {
+    // prevent the last admin from removing their own admin role
+    if (body.role !== 'admin' && userId === req.user!.id) {
+      // Check if there are other admins
       const [row] = await db
         .select({ count: sql<number>`count(*)` })
         .from(userTable)
         .where(
-          and(
-            eq(userTable.role, 'admin'),
-
-            sql`${userTable.id} != ${userId}`,
-          ),
+          and(eq(userTable.role, 'admin'), sql`${userTable.id} != ${userId}`),
         );
-      const adminCount = row?.count ?? 0;
-      if (adminCount >= 3) {
-        throw new ForbiddenException('Maximum number of admins reached (3)');
+      if (row?.count === 0) {
+        throw new ForbiddenException(
+          'You are the only admin – role change denied',
+        );
       }
     }
 
     await db
       .update(userTable)
-      .set({
-        role: body.role,
-        setupCompleted: true,
-      })
+      .set({ role: body.role })
       .where(eq(userTable.id, userId));
-
     return { success: true, role: body.role };
   }
 }
