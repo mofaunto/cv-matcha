@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const DBEnvSchema = z.object({
+  NODE_ENV: z.string(),
   TURSO_DATABASE_URL: z.string(),
   TURSO_AUTH_TOKEN: z.string().optional(),
 });

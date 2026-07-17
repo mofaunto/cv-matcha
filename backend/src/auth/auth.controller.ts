@@ -37,15 +37,35 @@ export class AuthController {
 
     const setCookie = response.headers.getSetCookie?.();
     if (setCookie && setCookie.length > 0) {
-      const fixedCookies = setCookie.map((cookie) =>
-        cookie
-          .replace(/;\s*SameSite=\w+/i, '; SameSite=None')
-          .replace(/;\s*Secure/i, '; Secure'),
-      );
-      res.setHeader('Set-Cookie', fixedCookies);
+      const isSecure =
+        req.protocol === 'https' ||
+        req.headers['x-forwarded-proto'] === 'https';
+
+      if (isSecure) {
+        const fixedCookies = setCookie.map((cookie) =>
+          cookie
+            .replace(/;\s*SameSite=\w+/i, '; SameSite=None')
+            .replace(/;\s*Secure/i, '; Secure'),
+        );
+        res.setHeader('Set-Cookie', fixedCookies);
+      } else {
+        res.setHeader('Set-Cookie', setCookie);
+      }
     }
 
-    const body = await response.text();
-    res.send(body);
+    res.send(await response.text());
+
+    // const setCookie = response.headers.getSetCookie?.();
+    // if (setCookie && setCookie.length > 0) {
+    //   const fixedCookies = setCookie.map((cookie) =>
+    //     cookie
+    //       .replace(/;\s*SameSite=\w+/i, '; SameSite=None')
+    //       .replace(/;\s*Secure/i, '; Secure'),
+    //   );
+    //   res.setHeader('Set-Cookie', fixedCookies);
+    // }
+
+    // const body = await response.text();
+    // res.send(body);
   }
 }

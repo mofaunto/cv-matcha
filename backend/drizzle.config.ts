@@ -8,6 +8,7 @@ export default defineConfig({
   dialect: 'turso',
   dbCredentials: {
     url: dbEnv.TURSO_DATABASE_URL,
-    authToken: dbEnv.TURSO_AUTH_TOKEN,
+    authToken:
+      dbEnv.NODE_ENV === 'production' ? dbEnv.TURSO_AUTH_TOKEN : undefined,
   },
 });
