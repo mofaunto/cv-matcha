@@ -7,12 +7,14 @@ import { useCurrentUser } from '@/hooks/use-user';
 import { LanguagePicker } from '@/components/common/selectors/LanguagePicker';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { authClient } from '@/lib/auth/auth-client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
   const { data: user } = useCurrentUser();
   const { t, locale, setLocale } = useLanguage();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const navItems = [
     { label: 'Dashboard', href: '/feed', roles: ['candidate', 'recruiter', 'admin'] },
@@ -21,6 +23,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { label: 'Attribute Library', href: '/attributes', roles: ['recruiter', 'admin'] },
     { label: 'Admin Panel', href: '/admin', roles: ['admin'] },
   ].filter(item => !item.roles || item.roles.includes(user?.role ?? ''));
+
+  const handleSignOut = async () => {
+    try {
+        await authClient.signOut();
+    } catch (error) {
+        console.error('Sign out failed:', error);
+    } finally {
+        queryClient.clear();
+        window.location.href = '/login';
+    }
+  };
 
   return (
     <AppShell
@@ -37,7 +50,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </UnstyledButton>
           </Group>
 
-          {/* Right side: language picker + avatar dropdown */}
           <Group>
             <LanguagePicker locale={locale} onChange={setLocale} />
             <Menu shadow="md" width={200}>
@@ -56,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   Account Settings
                 </Menu.Item>
                 <Menu.Divider />
-                <Menu.Item color="red" onClick={() => authClient.signOut()}>
+                <Menu.Item color="red" onClick={handleSignOut}>
                   Logout
                 </Menu.Item>
               </Menu.Dropdown>
