@@ -86,4 +86,14 @@ export const ru: Translations = {
     'Experience': 'Опыт',
     'Technical Skills': 'Технические навыки',
   },
+  profile: {
+    title: 'Мой профиль',
+    me: 'Я',
+    info: 'Информация',
+    projects: 'Проекты',
+    cvs: 'Резюме',
+    addAttribute: 'Добавить атрибут',
+    selectAttribute: 'Выбрать атрибут',
+    add: 'Добавить',
+  },
 };

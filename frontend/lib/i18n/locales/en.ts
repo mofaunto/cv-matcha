@@ -83,7 +83,17 @@ export const en = {
     'Language': 'Language',
     'Experience': 'Experience',
     'Technical Skills': 'Technical Skills',
-  }
+  },
+  profile: {
+    title: 'My Profile',
+    me: 'Me',
+    info: 'Information',
+    projects: 'Projects',
+    cvs: 'CVs',
+    addAttribute: 'Add Attribute',
+    selectAttribute: 'Choose an attribute',
+    add: 'Add',
+  },
 }
 
 export type Translations = typeof en;

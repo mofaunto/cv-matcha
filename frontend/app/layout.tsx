@@ -2,6 +2,7 @@ import React from 'react';
 import '@mantine/core/styles.css';
 import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
 import { Providers } from './providers';
+import Script from 'next/dist/client/script';
 
 export const metadata = {
   title: 'CV Matcha',
@@ -16,6 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
+        />
+        <Script
+          src="https://upload-widget.cloudinary.com/global/all.js"
+          strategy="beforeInteractive"
         />
       </head>
       <body>
