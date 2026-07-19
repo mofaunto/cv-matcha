@@ -1,4 +1,4 @@
-import type { Translations } from './types';
+import type { Translations } from './en';
 
 export const ru: Translations = {
   landing: {
@@ -42,5 +42,48 @@ export const ru: Translations = {
     recruiter: 'Рекрутер',
     admin: 'Администратор',
     save: 'Сохранить',
+  },
+  attributes: {
+    title: 'Библиотека атрибутов',
+    create: 'Создать атрибут',
+    searchPlaceholder: 'Поиск по названию...',
+    allCategories: 'Все категории',
+    name: 'Название',
+    category: 'Категория',
+    type: 'Тип',
+    builtIn: 'Встроенный',
+    actions: 'Действия',
+    loading: 'Загрузка...',
+    builtInYes: 'Да',
+    builtInNo: 'Нет',
+    editTitle: 'Редактировать атрибут',
+    createTitle: 'Создать атрибут',
+    attributeName: 'Название',
+    optionsLabel: 'Варианты (массив JSON)',
+    optionsDescription: 'например ["Вариант 1","Вариант 2"]',
+    save: 'Сохранить',
+    deleteTitle: 'Удалить атрибут',
+    deleteConfirm: 'Вы уверены, что хотите удалить атрибут',
+    cancel: 'Отмена',
+    delete: 'Удалить',
+    types: {
+      string: 'Строка',
+      text: 'Текст (Markdown)',
+      image: 'Изображение',
+      numeric: 'Числовой',
+      date: 'Дата',
+      boolean: 'Булево',
+      one_of_many: 'Выпадающий список',
+    },
+  },
+  categories: {
+    'Certification': 'Сертификация',
+    'Domain Knowledge': 'Знание предметной области',
+    'Personal Information': 'Личная информация',
+    'Soft Skills': 'Мягкие навыки',
+    'Education': 'Образование',
+    'Language': 'Язык',
+    'Experience': 'Опыт',
+    'Technical Skills': 'Технические навыки',
   },
 };
