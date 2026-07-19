@@ -104,16 +104,15 @@ export default function AttributesPage() {
   };
 
   // translating seeded attributes
-  const typeOptions = Object.entries(t.attributes.types).map(([value, label]) => ({
+  const typeOptions: { value: string; label: string }[] = Object.entries(t.attributeTypes).map(([value, label]) => ({
     value,
     label,
   }));
 
-  const categoryOptions =
-    categories?.map((c) => ({
-      value: String(c.id),
-      label: t.categories?.[c.name] ?? c.name,
-    })) ?? [];
+  const categoryOptions = categories?.map((c) => ({
+    value: String(c.id),
+    label: (t.categories as Record<string, string>)[c.name] ?? c.name,
+  })) ?? [];
 
   return (
     <Container fluid>
@@ -158,12 +157,9 @@ export default function AttributesPage() {
             </Table.Tr>
           )}
           {attributes?.map((attr) => {
-            const categoryName =
-              categories?.find((c) => c.id === attr.categoryId)?.name;
-            const translatedCategory = categoryName
-            ? ((t.categories as unknown as Record<string, string>)[categoryName] ?? categoryName)
-            : '-';
-            const translatedType = (t.attributes.types as unknown as Record<string, string>)[attr.type] ?? attr.type;
+            const categoryName = categories?.find((c) => c.id === attr.categoryId)?.name;
+            const translatedCategory = categoryName ? ((t.categories as Record<string, string>)[categoryName] ?? categoryName) : '-';
+            const translatedType = t.attributeTypes[attr.type] ?? attr.type;
 
             return (
               <Table.Tr key={attr.id}>

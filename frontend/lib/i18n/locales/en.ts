@@ -64,15 +64,15 @@ export const en = {
     deleteConfirm: 'Are you sure you want to delete the attribute',
     cancel: 'Cancel',
     delete: 'Delete',
-    types: {
-      string: 'String',
-      text: 'Text (Markdown)',
-      image: 'Image',
-      numeric: 'Numeric',
-      date: 'Date',
-      boolean: 'Boolean',
-      one_of_many: 'Dropdown',
-    } as Record<string, string>,
+  },
+  attributeTypes: {
+    string: 'String',
+    text: 'Text (Markdown)',
+    image: 'Image',
+    numeric: 'Numeric',
+    date: 'Date',
+    boolean: 'Boolean',
+    one_of_many: 'Dropdown',
   },
   categories: {
     'Certification': 'Certification',
@@ -83,8 +83,7 @@ export const en = {
     'Language': 'Language',
     'Experience': 'Experience',
     'Technical Skills': 'Technical Skills',
-  } as Record<string, string>,
-  // …other sections
+  }
 }
 
 export type Translations = typeof en;

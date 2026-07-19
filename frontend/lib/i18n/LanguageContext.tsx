@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { en } from '@/lib/i18n/locales/en';
 import { ru } from '@/lib/i18n/locales/ru';
-import type { Translations } from '@/lib/i18n/locales/types';
+import type { Translations } from '@/lib/i18n/locales/en';
 import { useCurrentUser, useUpdateProfile } from '@/hooks/use-user';
 
 type Locale = 'en' | 'ru';
