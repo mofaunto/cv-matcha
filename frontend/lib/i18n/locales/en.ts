@@ -31,6 +31,15 @@ export const en = {
     discord: 'Discord',
     github: 'GitHub',
   },
+  sidebar: {
+    dashboard: 'Dashboard',
+    myProfile: 'My Profile',
+    positions: 'Positions',
+    attributeLibrary: 'Attribute Library',
+    adminPanel: 'Admin Panel',
+    accountSettings: 'Account Settings',
+    logout: 'Logout',
+  },
   feed: {
     welcome: 'Welcome',
     role: 'Role',
@@ -87,12 +96,27 @@ export const en = {
   profile: {
     title: 'My Profile',
     me: 'Me',
+    myProfile: 'My Profile',
     info: 'Information',
     projects: 'Projects',
     cvs: 'CVs',
     addAttribute: 'Add Attribute',
     selectAttribute: 'Choose an attribute',
     add: 'Add',
+  },
+  projects: {
+    title: 'Projects',
+    create: 'Create Project',
+    createTitle: 'New Project',
+    editTitle: 'Edit Project',
+    name: 'Project Name',
+    period: 'Period',
+    tags: 'Technology Tags',
+    tagsPlaceholder: 'Search or add new tag',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    description: 'Description (Markdown)',
+    deleteConfirm: 'Are you sure you want to delete this project?',
   },
 }
 

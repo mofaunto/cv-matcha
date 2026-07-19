@@ -1,8 +1,8 @@
 'use client';
 
-import { AppShell, Burger, Group, NavLink, Button, Avatar, Menu, UnstyledButton, Text } from '@mantine/core';
+import { AppShell, Burger, Group, NavLink, Avatar, Menu, UnstyledButton, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/use-user';
 import { LanguagePicker } from '@/components/common/selectors/LanguagePicker';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -14,14 +14,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { data: user } = useCurrentUser();
   const { t, locale, setLocale } = useLanguage();
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
 
   const navItems = [
-    { label: 'Dashboard', href: '/feed', roles: ['candidate', 'recruiter', 'admin'] },
-    { label: 'My Profile', href: '/profile', roles: ['candidate', 'admin'] },
-    { label: 'Positions', href: '/positions', roles: ['candidate', 'recruiter', 'admin'] },
-    { label: 'Attribute Library', href: '/attributes', roles: ['recruiter', 'admin'] },
-    { label: 'Admin Panel', href: '/admin', roles: ['admin'] },
+    { label: t.sidebar.dashboard, href: '/feed', roles: ['candidate', 'recruiter', 'admin'] },
+    { label: t.sidebar.myProfile, href: '/profile', roles: ['candidate', 'admin'] },
+    { label: t.sidebar.positions, href: '/positions', roles: ['candidate', 'recruiter', 'admin'] },
+    { label: t.sidebar.attributeLibrary, href: '/attributes', roles: ['recruiter', 'admin'] },
+    { label: t.sidebar.adminPanel, href: '/admin', roles: ['admin'] },
   ].filter(item => !item.roles || item.roles.includes(user?.role ?? ''));
 
   const handleSignOut = async () => {
@@ -65,11 +66,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Menu.Dropdown>
                 <Menu.Label>{user?.name}</Menu.Label>
                 <Menu.Item onClick={() => router.push('/account-settings')}>
-                  Account Settings
+                  {t.sidebar.accountSettings}
                 </Menu.Item>
                 <Menu.Divider />
                 <Menu.Item color="red" onClick={handleSignOut}>
-                  Logout
+                  {t.sidebar.logout}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -83,7 +84,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             key={item.href}
             label={item.label}
             onClick={() => router.push(item.href)}
-            active={window.location.pathname === item.href}
+            active={pathname === item.href || pathname.startsWith(item.href + '/')}
           />
         ))}
       </AppShell.Navbar>

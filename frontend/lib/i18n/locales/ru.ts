@@ -33,6 +33,15 @@ export const ru: Translations = {
     discord: 'Discord',
     github: 'GitHub',
   },
+  sidebar: {
+    dashboard: 'Главная',
+    myProfile: 'Мой профиль',
+    positions: 'Должности',
+    attributeLibrary: 'Библиотека атрибутов',
+    adminPanel: 'Панель администратора',
+    accountSettings: 'Настройки аккаунта',
+    logout: 'Выйти',
+  },
   feed: {
     welcome: 'Добро пожаловать',
     role: 'Роль',
@@ -88,6 +97,7 @@ export const ru: Translations = {
   },
   profile: {
     title: 'Мой профиль',
+    myProfile: 'Мой профиль',
     me: 'Я',
     info: 'Информация',
     projects: 'Проекты',
@@ -95,5 +105,19 @@ export const ru: Translations = {
     addAttribute: 'Добавить атрибут',
     selectAttribute: 'Выбрать атрибут',
     add: 'Добавить',
+  },
+  projects: {
+    title: 'Проекты',
+    create: 'Создать проект',
+    createTitle: 'Новый проект',
+    editTitle: 'Редактировать проект',
+    name: 'Название проекта',
+    period: 'Период',
+    tags: 'Технологии',
+    tagsPlaceholder: 'Поиск или добавить новый тег',
+    startDate: 'Дата начала',
+    endDate: 'Дата окончания',
+    description: 'Описание (Markdown)',
+    deleteConfirm: 'Вы уверены, что хотите удалить этот проект?',
   },
 };
