@@ -161,9 +161,9 @@ export default function AttributesPage() {
             const categoryName =
               categories?.find((c) => c.id === attr.categoryId)?.name;
             const translatedCategory = categoryName
-              ? (t.categories?.[categoryName] ?? categoryName)
-              : '-';
-            const translatedType = t.attributes.types[attr.type] ?? attr.type;
+            ? ((t.categories as unknown as Record<string, string>)[categoryName] ?? categoryName)
+            : '-';
+            const translatedType = (t.attributes.types as unknown as Record<string, string>)[attr.type] ?? attr.type;
 
             return (
               <Table.Tr key={attr.id}>
