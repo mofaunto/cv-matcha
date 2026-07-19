@@ -74,7 +74,7 @@ export const ru: Translations = {
       date: 'Дата',
       boolean: 'Булево',
       one_of_many: 'Выпадающий список',
-    },
+    } as Record<string, string>, 
   },
   categories: {
     'Certification': 'Сертификация',
@@ -85,5 +85,5 @@ export const ru: Translations = {
     'Language': 'Язык',
     'Experience': 'Опыт',
     'Technical Skills': 'Технические навыки',
-  },
+  } as Record<string, string>,
 };
