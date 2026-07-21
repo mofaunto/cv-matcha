@@ -118,6 +118,20 @@ export const en = {
     description: 'Description (Markdown)',
     deleteConfirm: 'Are you sure you want to delete this project?',
   },
+  positions: {
+    title: 'Positions',
+    create: 'Create Position',
+    createTitle: 'New Position',
+    editTitle: 'Edit Position',
+    titleLabel: 'Title',
+    shortDescription: 'Short Description',
+    accessRules: 'Access Rules',
+    accessRulesHint: 'Only candidates who match all these rules will see the position.',
+    attributes: 'Attributes',
+    tags: 'Project Tags',
+    maxProjects: 'Max Projects',
+    addRuleButton: 'Add Rule',
+  },
 }
 
 export type Translations = typeof en;

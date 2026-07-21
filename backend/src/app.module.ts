@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AttributesModule } from './attributes/attributes.module';
 import { ProfileAttributesModule } from './profile-attributes/profile-attributes.module';
 import { CategoriesModule } from './categories/categories.module';
+import { PositionsModule } from './positions/positions.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CategoriesModule } from './categories/categories.module';
     CategoriesModule,
     AttributesModule,
     ProfileAttributesModule,
+    PositionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

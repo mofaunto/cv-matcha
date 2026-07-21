@@ -120,4 +120,18 @@ export const ru: Translations = {
     description: 'Описание (Markdown)',
     deleteConfirm: 'Вы уверены, что хотите удалить этот проект?',
   },
+  positions: {
+    title: 'Должности',
+    create: 'Создать должность',
+    createTitle: 'Новая должность',
+    editTitle: 'Редактировать должность',
+    titleLabel: 'Название',
+    shortDescription: 'Краткое описание',
+    accessRules: 'Правила доступа',
+    accessRulesHint: 'Только кандидаты, соответствующие всем правилам, увидят эту должность.',
+    attributes: 'Атрибуты',
+    tags: 'Теги проектов',
+    maxProjects: 'Макс. проектов',
+    addRuleButton: 'Добавить правило',
+  },
 };
