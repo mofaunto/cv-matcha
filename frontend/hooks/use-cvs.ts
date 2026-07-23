@@ -6,7 +6,8 @@ import {
   createCV,
   deleteCV,
   fetchPositionApplications,
-  publishCV
+  publishCV,
+  toggleLike
 } from '@/lib/api/cvs';
 
 export const useMyCVs = () =>
@@ -62,6 +63,18 @@ export const usePublishCV = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myCVs'] });
       queryClient.invalidateQueries({ queryKey: ['assembledCV'] });
+    },
+  });
+};
+
+export const useToggleLike = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: toggleLike,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['positionApplications'] });
+      queryClient.invalidateQueries({ queryKey: ['myCVs'] });
+      queryClient.invalidateQueries({ queryKey: ['likeCount'] });
     },
   });
 };

@@ -36,8 +36,11 @@ export class CvsController {
 
   @Get('position/:positionId')
   @Roles('recruiter', 'admin')
-  async forPosition(@Param('positionId') positionId: string) {
-    return this.cvsService.findByPosition(+positionId);
+  async forPosition(
+    @Param('positionId') positionId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.cvsService.findByPosition(+positionId, req.user!.id);
   }
 
   @Get(':id')

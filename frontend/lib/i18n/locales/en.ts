@@ -187,6 +187,8 @@ export const en = {
     publish: 'Publish',
     publishSuccess: 'CV published! Your CV is now visible to recruiters.',
     publishError: 'Cannot publish – all required attributes must be filled.',
+    likes: 'Likes',
+    like: 'Like',
   },
   admin: {
     title: 'Admin Panel – Users',

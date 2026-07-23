@@ -8,6 +8,7 @@ export interface CV {
   createdAt: string;
   updatedAt: string;
   published: boolean;
+  likeCount: number;
 }
 
 export interface AssembledCV {
@@ -23,6 +24,7 @@ export interface AssembledCV {
   }[];
   projects: any[];
   published: boolean;
+  likeCount: number;
 }
 
 export interface PositionApplication {
@@ -31,6 +33,8 @@ export interface PositionApplication {
   createdAt: string;
   candidateName: string;
   candidateEmail: string;
+  likeCount: number;
+  likedByCurrentUser: boolean;
 }
 
 export const fetchMyCVs = () =>
@@ -53,3 +57,6 @@ export const fetchPositionApplications = (positionId: number) =>
 
 export const publishCV = (cvId: number) =>
   apiClient.patch(`/api/cvs/${cvId}/publish`).then(r => r.data);
+
+export const toggleLike = (cvId: number) =>
+  apiClient.post(`/api/cvs/${cvId}/like`).then(r => r.data);

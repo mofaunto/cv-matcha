@@ -15,8 +15,9 @@ import {
   userProfileAttributes,
   attributes as attributesTable,
   user as userTable,
+  likes,
 } from '../../lib/db/schema';
-import { eq, and, desc, inArray } from 'drizzle-orm';
+import { eq, and, desc, inArray, count } from 'drizzle-orm';
 
 interface AccessRule {
   attributeId: number;
@@ -133,10 +134,23 @@ export class CvsService {
       .leftJoin(positions, eq(cvs.positionId, positions.id))
       .where(eq(cvs.candidateId, candidateId));
 
-    return rows;
+    const cvIds = rows.map((r) => r.id);
+    const likeCounts =
+      cvIds.length > 0
+        ? await db
+            .select({ cvId: likes.cvId, count: count(likes.cvId).as('count') })
+            .from(likes)
+            .where(inArray(likes.cvId, cvIds))
+            .groupBy(likes.cvId)
+        : [];
+    const likeCountMap = new Map(
+      likeCounts.map((lc) => [lc.cvId, Number(lc.count)]),
+    );
+
+    return rows.map((r) => ({ ...r, likeCount: likeCountMap.get(r.id) ?? 0 }));
   }
 
-  async findByPosition(positionId: number) {
+  async findByPosition(positionId: number, recruiterId?: string) {
     const rows = await db
       .select({
         cvId: cvs.id,
@@ -150,7 +164,36 @@ export class CvsService {
       .where(and(eq(cvs.positionId, positionId), eq(cvs.published, true)))
       .orderBy(cvs.createdAt);
 
-    return rows;
+    // Like counts
+    const cvIds = rows.map((r) => r.cvId);
+    const likeCountRows =
+      cvIds.length > 0
+        ? await db
+            .select({ cvId: likes.cvId, count: count(likes.cvId).as('count') })
+            .from(likes)
+            .where(inArray(likes.cvId, cvIds))
+            .groupBy(likes.cvId)
+        : [];
+    const likeCountMap = new Map(
+      likeCountRows.map((r) => [r.cvId, Number(r.count)]),
+    );
+
+    let likedSet = new Set<number>();
+    if (recruiterId) {
+      const likedRows = await db
+        .select({ cvId: likes.cvId })
+        .from(likes)
+        .where(
+          and(inArray(likes.cvId, cvIds), eq(likes.recruiterId, recruiterId)),
+        );
+      likedSet = new Set(likedRows.map((r) => r.cvId));
+    }
+
+    return rows.map((r) => ({
+      ...r,
+      likeCount: likeCountMap.get(r.cvId) ?? 0,
+      likedByCurrentUser: likedSet.has(r.cvId),
+    }));
   }
 
   async assembleCV(cvId: number) {

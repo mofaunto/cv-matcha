@@ -11,6 +11,7 @@ import { PositionsModule } from './positions/positions.module';
 import { CvsModule } from './cvs/cvs.module';
 import { ProjectsModule } from './projects/projects.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CvsModule,
     ProjectsModule,
     DashboardModule,
+    LikesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -65,6 +65,7 @@ export default function CVsTab() {
             <Table.Th>{t.cvs.position || 'Position'}</Table.Th>
             <Table.Th>{t.cvs.created || 'Created'}</Table.Th>
             <Table.Th>{t.cvs.status}</Table.Th>
+            <Table.Th>{t.cvs.likes || 'Likes'}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -79,6 +80,7 @@ export default function CVsTab() {
                   <Badge color="yellow">{t.cvs.draft}</Badge>
                 )}
               </Table.Td>
+              <Table.Td>{cv.likeCount ?? 0}</Table.Td>
               <Table.Td w={40}>
                 <Menu shadow="md" width={150}>
                   <Menu.Target>

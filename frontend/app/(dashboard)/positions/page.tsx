@@ -20,7 +20,16 @@ import {
   Menu,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPencil, IconTrash, IconPlus, IconCopy, IconDownload, IconEye, IconDotsVertical } from '@tabler/icons-react';
+import {
+  IconPencil,
+  IconTrash,
+  IconPlus,
+  IconCopy,
+  IconDownload,
+  IconEye,
+  IconDotsVertical,
+  IconHeart,
+} from '@tabler/icons-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   usePositions,
@@ -30,7 +39,10 @@ import {
   useDuplicatePosition,
 } from '@/hooks/use-positions';
 import { fetchAssembledCV } from '@/lib/api/cvs';
-import { usePositionApplications } from '@/hooks/use-cvs';
+import {
+  usePositionApplications,
+  useToggleLike,
+} from '@/hooks/use-cvs';
 import { generateCvPdf } from '@/lib/pdf/generate-cv-pdf';
 import { useCurrentUser } from '@/hooks/use-user';
 import { useCreateCV } from '@/hooks/use-cvs';
@@ -50,6 +62,7 @@ export default function PositionsPage() {
   const duplicateMutation = useDuplicatePosition();
   const { data: currentUser } = useCurrentUser();
   const createCvMutation = useCreateCV();
+  const likeMutation = useToggleLike();
   const router = useRouter();
 
   const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
@@ -59,7 +72,9 @@ export default function PositionsPage() {
 
   const [viewApplicantsPositionId, setViewApplicantsPositionId] = useState<number | null>(null);
   const [applicantsOpened, { open: openApplicants, close: closeApplicants }] = useDisclosure(false);
-  const { data: applications, isLoading: appsLoading } = usePositionApplications(viewApplicantsPositionId ?? 0);
+  const { data: applications, isLoading: appsLoading } = usePositionApplications(
+    viewApplicantsPositionId ?? 0,
+  );
 
   const [createEditOpened, { open, close }] = useDisclosure(false);
   const [editPosition, setEditPosition] = useState<Position | null>(null);
@@ -194,12 +209,13 @@ export default function PositionsPage() {
       </Group>
 
       <Table.ScrollContainer minWidth={600}>
-          <Table striped highlightOnHover>
+        <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>{t.positions.title}</Table.Th>
               <Table.Th>{t.positions.attributes}</Table.Th>
               <Table.Th>{t.positions.tags}</Table.Th>
+              {isRecruiterOrAdmin && <Table.Th w={40}></Table.Th>}
               {isCandidate && (
                 <Table.Th w={120}>{t.cvs.apply || 'Apply'}</Table.Th>
               )}
@@ -231,20 +247,6 @@ export default function PositionsPage() {
                     ))}
                   </Group>
                 </Table.Td>
-                {isCandidate && (
-                  <Table.Td>
-                    <Button
-                      size="xs"
-                      onClick={() => handleCreateCV(pos.id)}
-                      loading={
-                        createCvMutation.isPending && selectedPositionId === pos.id
-                      }
-                    >
-                      {t.cvs.create || 'Create CV'}
-                    </Button>
-                  </Table.Td>
-                )}
-                
                 {isRecruiterOrAdmin && (
                   <Table.Td w={40}>
                     <Menu shadow="md" width={200}>
@@ -277,55 +279,53 @@ export default function PositionsPage() {
                     </Menu>
                   </Table.Td>
                 )}
-
+                {isCandidate && (
+                  <Table.Td>
+                    <Button
+                      size="xs"
+                      onClick={() => handleCreateCV(pos.id)}
+                      loading={createCvMutation.isPending && selectedPositionId === pos.id}
+                    >
+                      {t.cvs.create || 'Create CV'}
+                    </Button>
+                  </Table.Td>
+                )}
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
 
-      {/* Create / Edit Modal – only shown to recruiters/admins, but already guarded by condition */}
+      {/* Create / Edit Modal */}
       <Modal
         opened={createEditOpened}
         onClose={close}
-        title={
-          editPosition ? t.positions.editTitle : t.positions.createTitle
-        }
+        title={editPosition ? t.positions.editTitle : t.positions.createTitle}
         size="lg"
       >
         <Stack>
           <TextInput
             label={t.positions.titleLabel}
             value={formValues.title}
-            onChange={(e) =>
-              setFormValues({ ...formValues, title: e.currentTarget.value })
-            }
+            onChange={(e) => setFormValues({ ...formValues, title: e.currentTarget.value })}
             required
           />
           <Textarea
             label={t.positions.shortDescription}
             value={formValues.shortDescription}
-            onChange={(e) =>
-              setFormValues({ ...formValues, shortDescription: e.currentTarget.value })
-            }
+            onChange={(e) => setFormValues({ ...formValues, shortDescription: e.currentTarget.value })}
             minRows={2}
           />
 
-          <Text size="sm" fw={500}>
-            {t.positions.accessRules}
-          </Text>
-          <Text size="xs" c="dimmed" mb="xs">
-            {t.positions.accessRulesHint}
-          </Text>
+          <Text size="sm" fw={500}>{t.positions.accessRules}</Text>
+          <Text size="xs" c="dimmed" mb="xs">{t.positions.accessRulesHint}</Text>
           <RuleBuilder rules={rules} onChange={setRules} attributes={ruleAttributes} />
 
           <MultiSelect
             label={t.positions.attributes}
             data={attrOptions.map((a) => ({ value: a.value, label: a.label }))}
             value={formValues.attributeIds}
-            onChange={(vals) =>
-              setFormValues({ ...formValues, attributeIds: vals })
-            }
+            onChange={(vals) => setFormValues({ ...formValues, attributeIds: vals })}
             searchable
             clearable
           />
@@ -333,71 +333,82 @@ export default function PositionsPage() {
             label={t.positions.tags}
             data={[]}
             value={formValues.projectTags}
-            onChange={(vals) =>
-              setFormValues({ ...formValues, projectTags: vals })
-            }
+            onChange={(vals) => setFormValues({ ...formValues, projectTags: vals })}
             placeholder="e.g. Python, SQL"
           />
           <NumberInput
             label={t.positions.maxProjects}
             value={formValues.maxProjects}
-            onChange={(val) =>
-              setFormValues({ ...formValues, maxProjects: val as number })
-            }
+            onChange={(val) => setFormValues({ ...formValues, maxProjects: val as number })}
             min={1}
           />
-          <Button
-            onClick={handleSubmit}
-            loading={createMutation.isPending || updateMutation.isPending}
-          >
+          <Button onClick={handleSubmit} loading={createMutation.isPending || updateMutation.isPending}>
             {editPosition ? t.attributes.save : t.positions.create}
           </Button>
         </Stack>
       </Modal>
 
-
+      {/* Applicants Modal */}
       <Modal
-          opened={applicantsOpened}
-          onClose={closeApplicants}
-          title={t.positions.applicants || 'Applicants'}
-          size="lg"
-        >
-          {appsLoading ? (
-            <Text>Loading...</Text>
-          ) : applications && applications.length > 0 ? (
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>{t.admin.name}</Table.Th>
-                  <Table.Th>{t.admin.email}</Table.Th>
-                  <Table.Th>{t.cvs.created}</Table.Th>
-                  <Table.Th>CV</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {applications.map((app) => (
-                  <Table.Tr key={app.cvId}>
-                    <Table.Td>{app.candidateName}</Table.Td>
-                    <Table.Td>{app.candidateEmail}</Table.Td>
-                    <Table.Td>{new Date(app.createdAt).toLocaleDateString()}</Table.Td>
+        opened={applicantsOpened}
+        onClose={closeApplicants}
+        title={t.positions.applicants || 'Applicants'}
+        size="lg"
+      >
+        {appsLoading ? (
+          <Text>Loading...</Text>
+        ) : applications && applications.length > 0 ? (
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>{t.admin.name}</Table.Th>
+                <Table.Th>{t.admin.email}</Table.Th>
+                <Table.Th>{t.cvs.created}</Table.Th>
+                <Table.Th>CV</Table.Th>
+                <Table.Th>{t.cvs.likes}</Table.Th>
+                {isRecruiterOrAdmin && <Table.Th>{t.cvs.like}</Table.Th>}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {applications.map((app) => (
+                <Table.Tr key={app.cvId}>
+                  <Table.Td>{app.candidateName}</Table.Td>
+                  <Table.Td>{app.candidateEmail}</Table.Td>
+                  <Table.Td>{new Date(app.createdAt).toLocaleDateString()}</Table.Td>
+                  <Table.Td>
+                    <ActionIcon
+                      onClick={async () => {
+                        const cv = await fetchAssembledCV(app.cvId);
+                        generateCvPdf(cv);
+                      }}
+                    >
+                      <IconDownload size={16} />
+                    </ActionIcon>
+                  </Table.Td>
+                  <Table.Td>{app.likeCount ?? 0}</Table.Td>
+                  {isRecruiterOrAdmin && (
                     <Table.Td>
                       <ActionIcon
-                        onClick={async () => {
-                          const cv = await fetchAssembledCV(app.cvId);
-                          generateCvPdf(cv);
-                        }}
+                        variant="subtle"
+                        color={app.likedByCurrentUser ? 'red' : 'gray'}
+                        onClick={() => likeMutation.mutate(app.cvId)}
+                        loading={likeMutation.isPending}
                       >
-                        <IconDownload size={16} />
+                        <IconHeart
+                          size={16}
+                          fill={app.likedByCurrentUser ? 'red' : 'none'}
+                        />
                       </ActionIcon>
                     </Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          ) : (
-            <Text c="dimmed">{t.positions.noApplicants}</Text>
-          )}
-        </Modal>
+                  )}
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        ) : (
+          <Text c="dimmed">{t.positions.noApplicants}</Text>
+        )}
+      </Modal>
     </Container>
   );
 }
