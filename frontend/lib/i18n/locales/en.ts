@@ -132,6 +132,26 @@ export const en = {
     maxProjects: 'Max Projects',
     addRuleButton: 'Add Rule',
   },
+  cvs: {
+    empty: 'No CVs yet.',
+    position: 'Position',
+    created: 'Created',
+    apply: 'Apply',
+    create: 'Create CV',
+    value: 'Value',
+    missing: 'Missing',
+    noProjects: 'No projects selected.',
+    positionSummary: 'Position',
+    attributes: 'Attributes',
+    myCV: 'My CV',
+    myDetails: 'My Details',
+    download: 'Download',
+    successCreate: 'CV created successfully!',
+    alreadyApplied: 'You have already applied to this position.',
+    notQualified: 'You do not meet the requirements for this position.',
+    errorCreate: 'Failed to create CV.',
+    viewCv: 'View CV',
+  },
 }
 
 export type Translations = typeof en;

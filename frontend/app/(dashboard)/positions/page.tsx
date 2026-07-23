@@ -28,9 +28,13 @@ import {
   useDeletePosition,
   useDuplicatePosition,
 } from '@/hooks/use-positions';
+import { useCurrentUser } from '@/hooks/use-user';
+import { useCreateCV } from '@/hooks/use-cvs';
 import { useAttributes } from '@/hooks/use-attributes';
 import RuleBuilder, { type Rule } from './RuleBuilder';
 import type { Position, Rule as ApiRule } from '@/lib/api/positions';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function PositionsPage() {
   const { t } = useLanguage();
@@ -40,6 +44,11 @@ export default function PositionsPage() {
   const updateMutation = useUpdatePosition();
   const deleteMutation = useDeletePosition();
   const duplicateMutation = useDuplicatePosition();
+  const { data: currentUser } = useCurrentUser();
+  const createCvMutation = useCreateCV();
+  const isCandidate = currentUser?.role !== 'recruiter';
+  const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
+  const router = useRouter();
 
   const [createEditOpened, { open, close }] = useDisclosure(false);
   const [editPosition, setEditPosition] = useState<Position | null>(null);
@@ -134,6 +143,33 @@ export default function PositionsPage() {
     type: a.type,
   }));
 
+  const handleCreateCV = async (positionId: number) => {
+    setSelectedPositionId(positionId);
+    try {
+      await createCvMutation.mutateAsync(positionId);
+      toast.success(t.cvs.successCreate || 'CV created!', {
+        action: {
+          label: t.cvs.viewCv || 'View CV',
+          onClick: () => router.push('/profile?tab=cvs'),
+        },
+      });
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        (err as { message?: string })?.message ??
+        '';
+      if (message.includes('already have a CV')) {
+        toast.error(t.cvs.alreadyApplied || 'You have already applied to this position.');
+      } else if (message.includes('access requirements')) {
+        toast.error(t.cvs.notQualified || 'You do not meet the requirements for this position.');
+      } else {
+        toast.error(t.cvs.errorCreate || 'Failed to create CV.');
+      }
+    } finally {
+      setSelectedPositionId(null);
+    }
+  };
+
   return (
     <Container fluid>
       <Group justify="space-between" mb="md">
@@ -150,6 +186,9 @@ export default function PositionsPage() {
             <Table.Th>{t.positions.attributes}</Table.Th>
             <Table.Th>{t.positions.tags}</Table.Th>
             <Table.Th w={120}>{t.attributes.actions}</Table.Th>
+            {isCandidate && (
+              <Table.Th w={120}>{t.cvs.apply || 'Apply'}</Table.Th>
+            )}
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -185,6 +224,18 @@ export default function PositionsPage() {
                     </ActionIcon>
                 </Group>
                 </Table.Td>
+
+              {isCandidate && (
+                <Table.Td>
+                  <Button
+                    size="xs"
+                    onClick={() => handleCreateCV(pos.id)}
+                    loading={createCvMutation.isPending && selectedPositionId === pos.id}
+                  >
+                    {t.cvs.create || 'Create CV'}
+                  </Button>
+                </Table.Td>
+              )}
             </Table.Tr>
           ))}
         </Table.Tbody>

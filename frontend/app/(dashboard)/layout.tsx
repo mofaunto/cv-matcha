@@ -1,6 +1,7 @@
 'use client';
 
 import { AppShell, Burger, Group, NavLink, Avatar, Menu, UnstyledButton, Text } from '@mantine/core';
+import { Toaster } from 'sonner';
 import { useDisclosure } from '@mantine/hooks';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/use-user';
@@ -42,6 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
     >
+      <Toaster richColors position="bottom-right" />
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between">
           <Group>

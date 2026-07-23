@@ -8,6 +8,8 @@ import { AttributesModule } from './attributes/attributes.module';
 import { ProfileAttributesModule } from './profile-attributes/profile-attributes.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PositionsModule } from './positions/positions.module';
+import { CvsModule } from './cvs/cvs.module';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { PositionsModule } from './positions/positions.module';
     AttributesModule,
     ProfileAttributesModule,
     PositionsModule,
+    CvsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
