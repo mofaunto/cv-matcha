@@ -14,9 +14,10 @@ import {
   Badge,
   ActionIcon,
   Text,
+  Menu,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPencil, IconTrash, IconPlus } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconPlus, IconDotsVertical } from '@tabler/icons-react';
 import {
   useAttributes,
   useCategories,
@@ -148,7 +149,6 @@ export default function AttributesPageContent() {
               <Table.Th>{t.attributes.category}</Table.Th>
               <Table.Th>{t.attributes.type}</Table.Th>
               <Table.Th>{t.attributes.builtIn}</Table.Th>
-              <Table.Th w={100}>{t.attributes.actions}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -174,19 +174,22 @@ export default function AttributesPageContent() {
                       <Badge color="gray">{t.attributes.builtInNo}</Badge>
                     )}
                   </Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <ActionIcon variant="subtle" onClick={() => openEdit(attr)}>
-                        <IconPencil size={16} />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => promptDelete(attr)}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Group>
+                  <Table.Td w={40}>
+                    <Menu shadow="md" width={150}>
+                      <Menu.Target>
+                        <ActionIcon variant="subtle">
+                          <IconDotsVertical size={16} />
+                        </ActionIcon>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openEdit(attr)}>
+                          {t.common.edit}
+                        </Menu.Item>
+                        <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => promptDelete(attr)}>
+                          {t.common.delete}
+                        </Menu.Item>
+                      </Menu.Dropdown>
+                    </Menu>
                   </Table.Td>
                 </Table.Tr>
               );

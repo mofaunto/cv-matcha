@@ -12,9 +12,10 @@ import {
   Switch,
   Modal,
   Text,
+  Menu,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
@@ -125,7 +126,6 @@ export default function AdminPageContent() {
               <Table.Th visibleFrom="sm">{t.admin.email || 'Email'}</Table.Th>
               <Table.Th>{t.admin.role || 'Role'}</Table.Th>
               <Table.Th>{t.admin.blocked || 'Blocked'}</Table.Th>
-              <Table.Th w={100}>{t.attributes.actions}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -159,10 +159,19 @@ export default function AdminPageContent() {
                     }
                   />
                 </Table.Td>
-                <Table.Td>
-                  <ActionIcon color="red" onClick={() => handleDelete(u.id)}>
-                    <IconTrash size={16} />
-                  </ActionIcon>
+                <Table.Td w={40}>
+                  <Menu shadow="md" width={150}>
+                    <Menu.Target>
+                      <ActionIcon variant="subtle">
+                        <IconDotsVertical size={16} />
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => handleDelete(u.id)}>
+                        {t.common.delete}
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                 </Table.Td>
               </Table.Tr>
             ))}

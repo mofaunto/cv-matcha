@@ -12,9 +12,10 @@ import {
   Paper,
   LoadingOverlay,
   Button,
+  Menu,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconTrash, IconEye, IconDownload } from '@tabler/icons-react';
+import { IconTrash, IconEye, IconDownload, IconDotsVertical } from '@tabler/icons-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   useMyCVs,
@@ -60,7 +61,6 @@ export default function CVsTab() {
           <Table.Tr>
             <Table.Th>{t.cvs.position || 'Position'}</Table.Th>
             <Table.Th>{t.cvs.created || 'Created'}</Table.Th>
-            <Table.Th w={100}>{t.attributes.actions}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -68,15 +68,22 @@ export default function CVsTab() {
             <Table.Tr key={cv.id}>
               <Table.Td>{cv.positionTitle}</Table.Td>
               <Table.Td>{new Date(cv.createdAt).toLocaleDateString()}</Table.Td>
-              <Table.Td>
-                <Group gap="xs">
-                  <ActionIcon variant="subtle" onClick={() => openCV(cv.id)}>
-                    <IconEye size={16} />
-                  </ActionIcon>
-                  <ActionIcon color="red" onClick={() => handleDelete(cv.id)}>
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
+              <Table.Td w={40}>
+                <Menu shadow="md" width={150}>
+                  <Menu.Target>
+                    <ActionIcon variant="subtle">
+                      <IconDotsVertical size={16} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item leftSection={<IconEye size={16} />} onClick={() => openCV(cv.id)}>
+                      {t.common.view}
+                    </Menu.Item>
+                    <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => handleDelete(cv.id)}>
+                      {t.common.delete}
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Table.Td>
             </Table.Tr>
           ))}

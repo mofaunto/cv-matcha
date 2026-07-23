@@ -1,4 +1,10 @@
 export const en = {
+  common: {
+    view: 'View',
+    edit: 'Edit',
+    delete: 'Delete',
+    duplicate: 'Duplicate',
+  },
   landing: {
     title1: 'Find your ',
     title2: 'dream job / dream candidate',

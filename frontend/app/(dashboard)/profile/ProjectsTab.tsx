@@ -16,10 +16,11 @@ import {
   Badge,
   ActionIcon,
   TagsInput,
+  Menu,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPencil, IconTrash, IconPlus } from '@tabler/icons-react';
+import { IconTrash, IconPlus, IconDotsVertical, IconEye } from '@tabler/icons-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   useProjects,
@@ -114,7 +115,6 @@ export default function ProjectsTab() {
             <Table.Th>{t.projects.name}</Table.Th>
             <Table.Th>{t.projects.period}</Table.Th>
             <Table.Th>{t.projects.tags}</Table.Th>
-            <Table.Th w={100}>{t.attributes.actions}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -136,15 +136,23 @@ export default function ProjectsTab() {
                   ))}
                 </Group>
               </Table.Td>
-              <Table.Td>
-                <Group gap="xs">
-                  <ActionIcon variant="subtle" onClick={() => openEdit(project)}>
-                    <IconPencil size={16} />
-                  </ActionIcon>
-                  <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(project.id)}>
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
+
+              <Table.Td w={40}>
+                <Menu shadow="md" width={150}>
+                  <Menu.Target>
+                    <ActionIcon variant="subtle">
+                      <IconDotsVertical size={16} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item leftSection={<IconEye size={16} />} onClick={() => openEdit(project)}>
+                      {t.common.view}
+                    </Menu.Item>
+                    <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => handleDelete(project.id)}>
+                      {t.common.delete}
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Table.Td>
             </Table.Tr>
           ))}

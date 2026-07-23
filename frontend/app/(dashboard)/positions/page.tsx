@@ -17,9 +17,10 @@ import {
   ActionIcon,
   Badge,
   TagsInput,
+  Menu,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPencil, IconTrash, IconPlus, IconCopy, IconDownload, IconEye } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconPlus, IconCopy, IconDownload, IconEye, IconDotsVertical } from '@tabler/icons-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   usePositions,
@@ -199,12 +200,6 @@ export default function PositionsPage() {
               <Table.Th>{t.positions.title}</Table.Th>
               <Table.Th>{t.positions.attributes}</Table.Th>
               <Table.Th>{t.positions.tags}</Table.Th>
-              {isRecruiterOrAdmin && (
-                <Table.Th w={120}>{t.attributes.actions}</Table.Th>
-              )}
-              {isRecruiterOrAdmin && (
-                <Table.Th w={160}>{t.positions.applicants}</Table.Th>
-              )}
               {isCandidate && (
                 <Table.Th w={120}>{t.cvs.apply || 'Apply'}</Table.Th>
               )}
@@ -236,37 +231,6 @@ export default function PositionsPage() {
                     ))}
                   </Group>
                 </Table.Td>
-                {isRecruiterOrAdmin && (
-                  <Table.Td style={{ paddingRight: 24 }}>
-                    <Group gap="xs" wrap="nowrap">
-                      <ActionIcon variant="subtle" onClick={() => openEdit(pos)}>
-                        <IconPencil size={16} />
-                      </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(pos.id)}>
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                      <ActionIcon variant="subtle" color="blue" onClick={() => handleDuplicate(pos.id)}>
-                        <IconCopy size={16} />
-                      </ActionIcon>
-                    </Group>
-                  </Table.Td>
-                )}
-                {isRecruiterOrAdmin && (
-                  <Table.Td>
-                    <Group gap="xs">
-                      <ActionIcon
-                        variant="subtle"
-                        onClick={() => {
-                          setViewApplicantsPositionId(pos.id);
-                          openApplicants();
-                        }}
-                      >
-                        <IconEye size={16} />
-                      </ActionIcon>
-                      <Text>{pos.candidateCount}</Text>
-                    </Group>
-                  </Table.Td>
-                )}
                 {isCandidate && (
                   <Table.Td>
                     <Button
@@ -278,6 +242,39 @@ export default function PositionsPage() {
                     >
                       {t.cvs.create || 'Create CV'}
                     </Button>
+                  </Table.Td>
+                )}
+                
+                {isRecruiterOrAdmin && (
+                  <Table.Td w={40}>
+                    <Menu shadow="md" width={200}>
+                      <Menu.Target>
+                        <ActionIcon variant="subtle">
+                          <IconDotsVertical size={16} />
+                        </ActionIcon>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openEdit(pos)}>
+                          {t.common.edit}
+                        </Menu.Item>
+                        <Menu.Item leftSection={<IconCopy size={16} />} onClick={() => handleDuplicate(pos.id)}>
+                          {t.common.duplicate}
+                        </Menu.Item>
+                        <Menu.Item
+                          leftSection={<IconEye size={16} />}
+                          onClick={() => {
+                            setViewApplicantsPositionId(pos.id);
+                            openApplicants();
+                          }}
+                        >
+                          {t.positions.applicants} ({pos.candidateCount})
+                        </Menu.Item>
+                        <Menu.Divider />
+                        <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => handleDelete(pos.id)}>
+                          {t.common.delete}
+                        </Menu.Item>
+                      </Menu.Dropdown>
+                    </Menu>
                   </Table.Td>
                 )}
 

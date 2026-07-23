@@ -1,6 +1,12 @@
 import type { Translations } from './en';
 
 export const ru: Translations = {
+  common: {
+    view: 'Посмотреть',
+    edit: 'Изменить',
+    delete: 'Удалить',
+    duplicate: 'Сделать копию',
+  },
   landing: {
     title1: 'Найдите свою ',
     title2: 'мечту / мечту кандидата',
