@@ -5,7 +5,38 @@ import { eq, and } from 'drizzle-orm';
 
 @Injectable()
 export class ProfileAttributesService {
+  private async ensureBuiltInAttributes(userId: string) {
+    const builtInAttrs = await db
+      .select({ id: attributes.id })
+      .from(attributes)
+      .where(eq(attributes.isBuiltIn, true));
+
+    if (builtInAttrs.length === 0) return;
+
+    const existing = await db
+      .select({ attributeId: userProfileAttributes.attributeId })
+      .from(userProfileAttributes)
+      .where(eq(userProfileAttributes.userId, userId));
+
+    const existingIds = new Set(existing.map((e) => e.attributeId));
+    const missingIds = builtInAttrs
+      .map((a) => a.id)
+      .filter((id) => !existingIds.has(id));
+
+    if (missingIds.length === 0) return;
+
+    const rows = missingIds.map((attributeId) => ({
+      userId,
+      attributeId,
+      version: 1,
+      updatedAt: new Date(),
+    }));
+    await db.insert(userProfileAttributes).values(rows);
+  }
+
   async getUserAttributes(userId: string) {
+    await this.ensureBuiltInAttributes(userId);
+
     return db
       .select({
         id: userProfileAttributes.id,

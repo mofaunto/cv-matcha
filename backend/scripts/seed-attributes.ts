@@ -12,6 +12,7 @@ async function seed() {
     'Language',
     'Experience',
     'Technical Skills',
+    'Contact',
   ];
 
   for (const name of categoryNames) {
@@ -23,24 +24,18 @@ async function seed() {
     allCategories.find((c) => c.name === name)?.id!;
 
   const builtIn = [
+    { name: 'First Name', type: 'string', category: 'Personal Information' },
+    { name: 'Last Name', type: 'string', category: 'Personal Information' },
+    { name: 'Location', type: 'string', category: 'Personal Information' },
+    { name: 'Personal Photo', type: 'image', category: 'Personal Information' },
+    { name: 'Email', type: 'string', category: 'Contact' },
+    { name: 'Phone', type: 'string', category: 'Contact' },
+    { name: 'LinkedIn', type: 'string', category: 'Contact' },
+    { name: 'GitHub', type: 'string', category: 'Contact' },
+    { name: 'Date of Birth', type: 'date', category: 'Personal Information' },
     {
-      name: 'First Name',
-      type: 'string' as const,
-      category: 'Personal Information',
-    },
-    {
-      name: 'Last Name',
-      type: 'string' as const,
-      category: 'Personal Information',
-    },
-    {
-      name: 'Location',
-      type: 'string' as const,
-      category: 'Personal Information',
-    },
-    {
-      name: 'Personal Photo',
-      type: 'image' as const,
+      name: 'Professional Summary',
+      type: 'text',
       category: 'Personal Information',
     },
   ];
@@ -51,7 +46,7 @@ async function seed() {
       .values({
         categoryId: getCatId(attr.category),
         name: attr.name,
-        type: attr.type,
+        type: attr.type as any,
         isBuiltIn: true,
         createdAt: new Date(),
         updatedAt: new Date(),
