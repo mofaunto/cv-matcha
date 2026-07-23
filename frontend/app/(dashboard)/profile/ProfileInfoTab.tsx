@@ -16,6 +16,7 @@ import {
   ActionIcon,
   Checkbox,
   MultiSelect,
+  Loader,
 } from '@mantine/core';
 import { IconTrash, IconPlus, IconUpload } from '@tabler/icons-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -185,7 +186,7 @@ export default function ProfileInfoTab() {
     }
   };
 
-  if (profileLoading) return <Text>Loading...</Text>;
+  if (profileLoading) return <Loader color="teal" type="dots" />;
 
   return (
     <Container fluid>
