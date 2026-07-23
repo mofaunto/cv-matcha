@@ -5,7 +5,8 @@ import {
   fetchAssembledCV,
   createCV,
   deleteCV,
-  fetchPositionApplications
+  fetchPositionApplications,
+  publishCV
 } from '@/lib/api/cvs';
 
 export const useMyCVs = () =>
@@ -53,3 +54,14 @@ export const usePositionApplications = (positionId: number) =>
     queryFn: () => fetchPositionApplications(positionId),
     enabled: !!positionId,
   });
+
+export const usePublishCV = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: publishCV,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myCVs'] });
+      queryClient.invalidateQueries({ queryKey: ['assembledCV'] });
+    },
+  });
+};

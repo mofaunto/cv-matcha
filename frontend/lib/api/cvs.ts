@@ -7,6 +7,7 @@ export interface CV {
   positionTitle: string;
   createdAt: string;
   updatedAt: string;
+  published: boolean;
 }
 
 export interface AssembledCV {
@@ -21,6 +22,7 @@ export interface AssembledCV {
     value: any | null;
   }[];
   projects: any[];
+  published: boolean;
 }
 
 export interface PositionApplication {
@@ -48,3 +50,6 @@ export const deleteCV = (cvId: number) =>
 
 export const fetchPositionApplications = (positionId: number) =>
   apiClient.get<PositionApplication[]>(`/api/cvs/position/${positionId}`).then(r => r.data);
+
+export const publishCV = (cvId: number) =>
+  apiClient.patch(`/api/cvs/${cvId}/publish`).then(r => r.data);

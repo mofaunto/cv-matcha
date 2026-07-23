@@ -181,6 +181,12 @@ export const en = {
     notQualified: 'You do not meet the requirements for this position.',
     errorCreate: 'Failed to create CV.',
     viewCv: 'View CV',
+    status: 'Status',
+    published: 'Published',
+    draft: 'Draft',
+    publish: 'Publish',
+    publishSuccess: 'CV published! Your CV is now visible to recruiters.',
+    publishError: 'Cannot publish – all required attributes must be filled.',
   },
   admin: {
     title: 'Admin Panel – Users',

@@ -19,6 +19,9 @@ export const cvs = sqliteTable(
       .references(() => positions.id, { onDelete: 'cascade' }),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+    published: integer('published', { mode: 'boolean' })
+      .notNull()
+      .default(false),
   },
   (table) => ({
     uniqueCandidatePosition: uniqueIndex('uix_candidate_position').on(

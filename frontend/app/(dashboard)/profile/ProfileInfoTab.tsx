@@ -32,6 +32,8 @@ import {
 } from '@/hooks/use-attributes';
 import type { ProfileAttribute } from '@/lib/api/profile-attributes';
 import type { Attribute } from '@/lib/api/attributes';
+import '@mantine/dates/styles.css';
+import { DatePickerInput } from '@mantine/dates';
 
 interface CloudinaryResult {
   event: string;
@@ -147,6 +149,21 @@ export default function ProfileInfoTab() {
           value={(currentValue as string) ?? ''}
           onChange={val => handleValueChange(attr, { [field]: val ?? '' })}
           style={{ minWidth: 150 }}
+        />
+      );
+    }
+
+    if (attr.type === 'date') {
+      return (
+        <DatePickerInput
+          value={currentValue ? new Date(currentValue as string) : null}
+          onChange={(date) =>
+            handleValueChange(attr, {
+              [field]: date ? date.toString() : null,
+            })
+          }
+          clearable
+          valueFormat="YYYY-MM-DD"
         />
       );
     }

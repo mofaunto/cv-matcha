@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import db from '../../lib/db';
 import {
@@ -74,6 +75,49 @@ export class CvsService {
     return cv;
   }
 
+  async publish(cvId: number, userId: string) {
+    const [cv] = await db.select().from(cvs).where(eq(cvs.id, cvId));
+    if (!cv) throw new NotFoundException('CV not found');
+    if (cv.candidateId !== userId) throw new ForbiddenException('Not your CV');
+
+    const posAttrs = await db
+      .select({ attributeId: positionAttributes.attributeId })
+      .from(positionAttributes)
+      .where(eq(positionAttributes.positionId, cv.positionId));
+
+    if (posAttrs.length === 0) {
+      await db.update(cvs).set({ published: true }).where(eq(cvs.id, cvId));
+      return { published: true };
+    }
+
+    const attributeIds = posAttrs.map((pa) => pa.attributeId);
+    const userValues = await db
+      .select()
+      .from(userProfileAttributes)
+      .where(
+        and(
+          eq(userProfileAttributes.userId, userId),
+          inArray(userProfileAttributes.attributeId, attributeIds),
+        ),
+      );
+
+    for (const attrId of attributeIds) {
+      const userAttr = userValues.find((v) => v.attributeId === attrId);
+      if (!userAttr) {
+        throw new BadRequestException('Missing required attribute');
+      }
+      const value = this.getAttrValue(userAttr);
+      if (value === null || value === undefined) {
+        throw new BadRequestException(
+          'All required attributes must be filled before publishing',
+        );
+      }
+    }
+
+    await db.update(cvs).set({ published: true }).where(eq(cvs.id, cvId));
+    return { published: true };
+  }
+
   async findByCandidate(candidateId: string) {
     const rows = await db
       .select({
@@ -83,6 +127,7 @@ export class CvsService {
         createdAt: cvs.createdAt,
         updatedAt: cvs.updatedAt,
         positionTitle: positions.title,
+        published: cvs.published,
       })
       .from(cvs)
       .leftJoin(positions, eq(cvs.positionId, positions.id))
@@ -102,7 +147,7 @@ export class CvsService {
       })
       .from(cvs)
       .innerJoin(userTable, eq(cvs.candidateId, userTable.id))
-      .where(eq(cvs.positionId, positionId))
+      .where(and(eq(cvs.positionId, positionId), eq(cvs.published, true)))
       .orderBy(cvs.createdAt);
 
     return rows;
@@ -181,6 +226,7 @@ export class CvsService {
       positionTitle: position.title,
       positionShortDescription: position.shortDescription,
       positionId: position.id,
+      published: cv.published,
       attributes: posAttrs.map((pa) => {
         const userValue = userValues.find(
           (v) => v.attributeId === pa.attributeId,

@@ -21,13 +21,16 @@ import {
   useMyCVs,
   useDeleteCV,
   useAssembledCV,
+  usePublishCV,
 } from '@/hooks/use-cvs';
 import { generateCvPdf } from '@/lib/pdf/generate-cv-pdf';
+import { toast } from 'sonner';
 
 export default function CVsTab() {
   const { t } = useLanguage();
   const { data: cvs, isLoading } = useMyCVs();
   const deleteMutation = useDeleteCV();
+  const publishMutation = usePublishCV();
 
   const [viewCvId, setViewCvId] = useState<number | null>(null);
   const [viewOpened, { open: openView, close: closeView }] = useDisclosure(false);
@@ -61,6 +64,7 @@ export default function CVsTab() {
           <Table.Tr>
             <Table.Th>{t.cvs.position || 'Position'}</Table.Th>
             <Table.Th>{t.cvs.created || 'Created'}</Table.Th>
+            <Table.Th>{t.cvs.status}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -68,6 +72,13 @@ export default function CVsTab() {
             <Table.Tr key={cv.id}>
               <Table.Td>{cv.positionTitle}</Table.Td>
               <Table.Td>{new Date(cv.createdAt).toLocaleDateString()}</Table.Td>
+              <Table.Td>
+                {cv.published ? (
+                  <Badge color="green">{t.cvs.published}</Badge>
+                ) : (
+                  <Badge color="yellow">{t.cvs.draft}</Badge>
+                )}
+              </Table.Td>
               <Table.Td w={40}>
                 <Menu shadow="md" width={150}>
                   <Menu.Target>
@@ -103,13 +114,32 @@ export default function CVsTab() {
           <Stack>
             <Group justify="space-between">
               <Text fw={500}>{t.cvs.myCV || 'My CV'}: {assembledCV.positionTitle}</Text>
-              <Button
-                variant="outline"
-                leftSection={<IconDownload size={16} />}
-                onClick={() => assembledCV && generateCvPdf(assembledCV)}
-              >
-                {t.cvs.download || 'Download'}
-              </Button>
+              <Group>
+                {!assembledCV.published && (
+                  <Button
+                    variant="filled"
+                    onClick={async () => {
+                      try {
+                        await publishMutation.mutateAsync(assembledCV.cvId);
+                        toast.success(t.cvs.publishSuccess);
+                        closeCV();
+                      } catch (err) {
+                        toast.error(t.cvs.publishError);
+                      }
+                    }}
+                    loading={publishMutation.isPending}
+                  >
+                    {t.cvs.publish}
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  leftSection={<IconDownload size={16} />}
+                  onClick={() => assembledCV && generateCvPdf(assembledCV)}
+                >
+                  {t.cvs.download || 'Download'}
+                </Button>
+              </Group>
             </Group>
             <Text size="sm" c="dimmed">{assembledCV.positionShortDescription}</Text>
 

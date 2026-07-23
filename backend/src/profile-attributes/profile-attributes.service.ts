@@ -91,6 +91,10 @@ export class ProfileAttributesService {
     currentVersion: number,
     value: Record<string, any>,
   ) {
+    if (value.valueDate && typeof value.valueDate === 'string') {
+      value.valueDate = new Date(value.valueDate);
+    }
+
     const [updated] = await db
       .update(userProfileAttributes)
       .set({ ...value, version: currentVersion + 1, updatedAt: new Date() })

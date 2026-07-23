@@ -7,6 +7,7 @@ import {
   Body,
   Req,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard, Roles } from '../auth/roles.guard';
@@ -43,6 +44,12 @@ export class CvsController {
   @Roles('candidate', 'recruiter', 'admin')
   async assemble(@Param('id') id: string) {
     return this.cvsService.assembleCV(+id);
+  }
+
+  @Patch(':id/publish')
+  @Roles('candidate', 'admin')
+  async publish(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.cvsService.publish(+id, req.user!.id);
   }
 
   @Delete(':id')
