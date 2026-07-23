@@ -21,6 +21,7 @@ import {
   useDeleteCV,
   useAssembledCV,
 } from '@/hooks/use-cvs';
+import { generateCvPdf } from '@/lib/pdf/generate-cv-pdf';
 
 export default function CVsTab() {
   const { t } = useLanguage();
@@ -95,7 +96,11 @@ export default function CVsTab() {
           <Stack>
             <Group justify="space-between">
               <Text fw={500}>{t.cvs.myCV || 'My CV'}: {assembledCV.positionTitle}</Text>
-              <Button variant="outline" leftSection={<IconDownload size={16} />} disabled>
+              <Button
+                variant="outline"
+                leftSection={<IconDownload size={16} />}
+                onClick={() => assembledCV && generateCvPdf(assembledCV)}
+              >
                 {t.cvs.download || 'Download'}
               </Button>
             </Group>
