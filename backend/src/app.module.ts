@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { PositionsModule } from './positions/positions.module';
 import { CvsModule } from './cvs/cvs.module';
 import { ProjectsModule } from './projects/projects.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProjectsModule } from './projects/projects.module';
     PositionsModule,
     CvsModule,
     ProjectsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
