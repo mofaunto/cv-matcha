@@ -131,6 +131,8 @@ export const en = {
     tags: 'Project Tags',
     maxProjects: 'Max Projects',
     addRuleButton: 'Add Rule',
+    applicants: 'Applicants',
+    noApplicants: 'No candidates yet',
   },
   cvs: {
     empty: 'No CVs yet.',

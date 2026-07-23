@@ -16,6 +16,7 @@ export interface Position {
   projectTags: string[];
   createdAt: string;
   updatedAt: string;
+  candidateCount: number;
 }
 
 export const fetchPositions = () =>

@@ -24,7 +24,7 @@ export class AttributesController {
   constructor(private readonly attributesService: AttributesService) {}
 
   @Get()
-  @Roles('recruiter', 'admin')
+  @Roles('candidate', 'recruiter', 'admin')
   async list(
     @Query('categoryId') categoryId?: string,
     @Query('search') search?: string,
@@ -36,7 +36,7 @@ export class AttributesController {
   }
 
   @Get('recent')
-  @Roles('recruiter', 'admin')
+  @Roles('candidate', 'recruiter', 'admin')
   async recent(@Req() req: AuthenticatedRequest) {
     return this.attributesService.findRecent(req.user!.id);
   }

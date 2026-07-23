@@ -133,6 +133,8 @@ export const ru: Translations = {
     tags: 'Теги проектов',
     maxProjects: 'Макс. проектов',
     addRuleButton: 'Добавить правило',
+    applicants: 'Кандидаты',
+    noApplicants: 'Пока нету кандидатов',
   },
   cvs: {
     empty: 'Пока нет резюме.',

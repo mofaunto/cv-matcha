@@ -13,6 +13,7 @@ import {
   projectTags,
   userProfileAttributes,
   attributes as attributesTable,
+  user as userTable,
 } from '../../lib/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 
@@ -91,7 +92,20 @@ export class CvsService {
   }
 
   async findByPosition(positionId: number) {
-    return db.select().from(cvs).where(eq(cvs.positionId, positionId));
+    const rows = await db
+      .select({
+        cvId: cvs.id,
+        candidateId: cvs.candidateId,
+        createdAt: cvs.createdAt,
+        candidateName: userTable.name,
+        candidateEmail: userTable.email,
+      })
+      .from(cvs)
+      .innerJoin(userTable, eq(cvs.candidateId, userTable.id))
+      .where(eq(cvs.positionId, positionId))
+      .orderBy(cvs.createdAt);
+
+    return rows;
   }
 
   async assembleCV(cvId: number) {

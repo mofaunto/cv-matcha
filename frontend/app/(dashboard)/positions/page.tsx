@@ -19,7 +19,7 @@ import {
   TagsInput,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPencil, IconTrash, IconPlus, IconCopy } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconPlus, IconCopy, IconDownload, IconEye } from '@tabler/icons-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   usePositions,
@@ -28,6 +28,9 @@ import {
   useDeletePosition,
   useDuplicatePosition,
 } from '@/hooks/use-positions';
+import { fetchAssembledCV } from '@/lib/api/cvs';
+import { usePositionApplications } from '@/hooks/use-cvs';
+import { generateCvPdf } from '@/lib/pdf/generate-cv-pdf';
 import { useCurrentUser } from '@/hooks/use-user';
 import { useCreateCV } from '@/hooks/use-cvs';
 import { useAttributes } from '@/hooks/use-attributes';
@@ -50,9 +53,12 @@ export default function PositionsPage() {
 
   const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
 
-  const isRecruiterOrAdmin =
-    currentUser?.role === 'recruiter' || currentUser?.role === 'admin';
-  const isCandidate = currentUser?.role === 'candidate';
+  const isRecruiterOrAdmin = currentUser?.role === 'recruiter' || currentUser?.role === 'admin';
+  const isCandidate = currentUser?.role === 'candidate' || currentUser?.role === 'admin';
+
+  const [viewApplicantsPositionId, setViewApplicantsPositionId] = useState<number | null>(null);
+  const [applicantsOpened, { open: openApplicants, close: closeApplicants }] = useDisclosure(false);
+  const { data: applications, isLoading: appsLoading } = usePositionApplications(viewApplicantsPositionId ?? 0);
 
   const [createEditOpened, { open, close }] = useDisclosure(false);
   const [editPosition, setEditPosition] = useState<Position | null>(null);
@@ -196,6 +202,9 @@ export default function PositionsPage() {
               {isRecruiterOrAdmin && (
                 <Table.Th w={120}>{t.attributes.actions}</Table.Th>
               )}
+              {isRecruiterOrAdmin && (
+                <Table.Th w={160}>{t.positions.applicants}</Table.Th>
+              )}
               {isCandidate && (
                 <Table.Th w={120}>{t.cvs.apply || 'Apply'}</Table.Th>
               )}
@@ -228,7 +237,7 @@ export default function PositionsPage() {
                   </Group>
                 </Table.Td>
                 {isRecruiterOrAdmin && (
-                  <Table.Td>
+                  <Table.Td style={{ paddingRight: 24 }}>
                     <Group gap="xs" wrap="nowrap">
                       <ActionIcon variant="subtle" onClick={() => openEdit(pos)}>
                         <IconPencil size={16} />
@@ -239,6 +248,22 @@ export default function PositionsPage() {
                       <ActionIcon variant="subtle" color="blue" onClick={() => handleDuplicate(pos.id)}>
                         <IconCopy size={16} />
                       </ActionIcon>
+                    </Group>
+                  </Table.Td>
+                )}
+                {isRecruiterOrAdmin && (
+                  <Table.Td>
+                    <Group gap="xs">
+                      <ActionIcon
+                        variant="subtle"
+                        onClick={() => {
+                          setViewApplicantsPositionId(pos.id);
+                          openApplicants();
+                        }}
+                      >
+                        <IconEye size={16} />
+                      </ActionIcon>
+                      <Text>{pos.candidateCount}</Text>
                     </Group>
                   </Table.Td>
                 )}
@@ -255,6 +280,7 @@ export default function PositionsPage() {
                     </Button>
                   </Table.Td>
                 )}
+
               </Table.Tr>
             ))}
           </Table.Tbody>
@@ -331,6 +357,50 @@ export default function PositionsPage() {
           </Button>
         </Stack>
       </Modal>
+
+
+      <Modal
+          opened={applicantsOpened}
+          onClose={closeApplicants}
+          title={t.positions.applicants || 'Applicants'}
+          size="lg"
+        >
+          {appsLoading ? (
+            <Text>Loading...</Text>
+          ) : applications && applications.length > 0 ? (
+            <Table>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>{t.admin.name}</Table.Th>
+                  <Table.Th>{t.admin.email}</Table.Th>
+                  <Table.Th>{t.cvs.created}</Table.Th>
+                  <Table.Th>CV</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {applications.map((app) => (
+                  <Table.Tr key={app.cvId}>
+                    <Table.Td>{app.candidateName}</Table.Td>
+                    <Table.Td>{app.candidateEmail}</Table.Td>
+                    <Table.Td>{new Date(app.createdAt).toLocaleDateString()}</Table.Td>
+                    <Table.Td>
+                      <ActionIcon
+                        onClick={async () => {
+                          const cv = await fetchAssembledCV(app.cvId);
+                          generateCvPdf(cv);
+                        }}
+                      >
+                        <IconDownload size={16} />
+                      </ActionIcon>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          ) : (
+            <Text c="dimmed">{t.positions.noApplicants}</Text>
+          )}
+        </Modal>
     </Container>
   );
 }

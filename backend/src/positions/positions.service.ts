@@ -4,8 +4,9 @@ import {
   positions,
   positionAttributes,
   positionProjectTags,
+  cvs,
 } from '../../lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 @Injectable()
 export class PositionsService {
@@ -24,11 +25,18 @@ export class PositionsService {
           .from(positionProjectTags)
           .where(eq(positionProjectTags.positionId, position.id));
 
+        const counts = await db
+          .select({ positionId: cvs.positionId, count: sql<number>`count(*)` })
+          .from(cvs)
+          .groupBy(cvs.positionId);
+        const countMap = new Map(counts.map((c) => [c.positionId, c.count]));
+
         return {
           ...position,
           attributeIds: attrs.map((a) => a.attributeId),
           projectTags: tags.map((t) => t.tag),
           accessRules: JSON.parse(position.accessRules || '[]'),
+          candidateCount: countMap.get(position.id) ?? 0,
         };
       }),
     );

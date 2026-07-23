@@ -5,6 +5,7 @@ import {
   fetchAssembledCV,
   createCV,
   deleteCV,
+  fetchPositionApplications
 } from '@/lib/api/cvs';
 
 export const useMyCVs = () =>
@@ -45,3 +46,10 @@ export const useDeleteCV = () => {
     },
   });
 };
+
+export const usePositionApplications = (positionId: number) =>
+  useQuery({
+    queryKey: ['positionApplications', positionId],
+    queryFn: () => fetchPositionApplications(positionId),
+    enabled: !!positionId,
+  });
