@@ -23,6 +23,11 @@ import { GithubButton } from '@/components/common/buttons/GithubButton';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguagePicker } from '@/components/common/selectors/LanguagePicker';
 
+interface SignInResult {
+  session?: { user: unknown; [key: string]: unknown };
+  error?: { message?: string };
+}
+
 export default function LoginPage(props: PaperProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -48,18 +53,23 @@ export default function LoginPage(props: PaperProps) {
     setError(null);
     setLoading(true);
     try {
-      await authClient.signIn.email({
+      const result = (await authClient.signIn.email({
         email: values.email,
         password: values.password,
-      });
+      })) as SignInResult;
+
+      if (result?.error) {
+        setError(result.error.message ?? 'Invalid email or password');
+        return;
+      }
+
       router.push('/feed');
     } catch (err: unknown) {
-        if (err instanceof Error) {
-          const message = err?.message || 'Something went wrong with login.';
-          setError(message);
-        } else {
-            console.error('An unknown error occurred');
-        }
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Something went wrong with login.');
+      }
     } finally {
       setLoading(false);
     }
