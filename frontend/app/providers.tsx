@@ -5,6 +5,7 @@ import { MantineProvider } from '@mantine/core';
 import { mantineTheme } from '@/theme';
 import { useState } from 'react';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
+import { ThemeProvider } from '@/lib/theme/ThemeContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -13,7 +14,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={mantineTheme}>
         <LanguageProvider>
-          {children}
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
         </LanguageProvider>
       </MantineProvider>
     </QueryClientProvider>

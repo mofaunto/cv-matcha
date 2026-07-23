@@ -9,6 +9,7 @@ import { LanguagePicker } from '@/components/common/selectors/LanguagePicker';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { authClient } from '@/lib/auth/auth-client';
 import { useQueryClient } from '@tanstack/react-query';
+import ThemeSwitcher from '@/components/common/buttons/ThemeSwitcher';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
@@ -54,6 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Group>
 
           <Group>
+            <ThemeSwitcher />
             <LanguagePicker locale={locale} onChange={setLocale} />
             <Menu shadow="md" width={200}>
               <Menu.Target>
@@ -66,11 +68,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </UnstyledButton>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Label>{user?.name}</Menu.Label>
+                {/* <Menu.Label>{user?.name}</Menu.Label>
                 <Menu.Item onClick={() => router.push('/account-settings')}>
                   {t.sidebar.accountSettings}
                 </Menu.Item>
-                <Menu.Divider />
+                <Menu.Divider /> */}
                 <Menu.Item color="red" onClick={handleSignOut}>
                   {t.sidebar.logout}
                 </Menu.Item>
