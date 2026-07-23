@@ -46,9 +46,13 @@ export default function PositionsPage() {
   const duplicateMutation = useDuplicatePosition();
   const { data: currentUser } = useCurrentUser();
   const createCvMutation = useCreateCV();
-  const isCandidate = currentUser?.role !== 'recruiter';
-  const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
   const router = useRouter();
+
+  const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
+
+  const isRecruiterOrAdmin =
+    currentUser?.role === 'recruiter' || currentUser?.role === 'admin';
+  const isCandidate = currentUser?.role === 'candidate';
 
   const [createEditOpened, { open, close }] = useDisclosure(false);
   const [editPosition, setEditPosition] = useState<Position | null>(null);
@@ -79,34 +83,35 @@ export default function PositionsPage() {
     open();
   };
 
-  const ruleAttributes = (allAttrs ?? []).filter(a =>
-    a.type !== 'image' &&
-    !(a.isBuiltIn && ['First Name', 'Last Name', 'Personal Photo'].includes(a.name))
+  const ruleAttributes = (allAttrs ?? []).filter(
+    (a) =>
+      a.type !== 'image' &&
+      !(a.isBuiltIn && ['First Name', 'Last Name', 'Personal Photo'].includes(a.name)),
   );
 
   const openEdit = (pos: Position) => {
     setEditPosition(pos);
     setFormValues({
-        title: pos.title,
-        shortDescription: pos.shortDescription,
-        maxProjects: pos.maxProjects,
-        attributeIds: pos.attributeIds?.map(String) ?? [],
-        projectTags: pos.projectTags ?? [],
+      title: pos.title,
+      shortDescription: pos.shortDescription,
+      maxProjects: pos.maxProjects,
+      attributeIds: pos.attributeIds?.map(String) ?? [],
+      projectTags: pos.projectTags ?? [],
     });
 
     const rulesArray = Array.isArray(pos.accessRules)
-        ? pos.accessRules
-        : typeof pos.accessRules === 'string'
+      ? pos.accessRules
+      : typeof pos.accessRules === 'string'
         ? JSON.parse(pos.accessRules)
         : [];
     setRules(rulesArray);
     open();
-    };
+  };
 
   const handleSubmit = async () => {
     const accessRules = rules
-      .filter(r => r.attributeId && r.operator)
-      .map(r => ({
+      .filter((r) => r.attributeId && r.operator)
+      .map((r) => ({
         attributeId: Number(r.attributeId),
         operator: r.operator,
         value: r.value,
@@ -137,7 +142,7 @@ export default function PositionsPage() {
     duplicateMutation.mutate(id);
   };
 
-  const attrOptions = (allAttrs ?? []).map(a => ({
+  const attrOptions = (allAttrs ?? []).map((a) => ({
     value: String(a.id),
     label: a.name,
     type: a.type,
@@ -174,106 +179,130 @@ export default function PositionsPage() {
     <Container fluid>
       <Group justify="space-between" mb="md">
         <Title order={2}>{t.positions.title}</Title>
-        <Button leftSection={<IconPlus size={16} />} onClick={openCreate}>
-          {t.positions.create}
-        </Button>
+        {isRecruiterOrAdmin && (
+          <Button leftSection={<IconPlus size={16} />} onClick={openCreate}>
+            {t.positions.create}
+          </Button>
+        )}
       </Group>
 
-      <Table striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>{t.positions.title}</Table.Th>
-            <Table.Th>{t.positions.attributes}</Table.Th>
-            <Table.Th>{t.positions.tags}</Table.Th>
-            <Table.Th w={120}>{t.attributes.actions}</Table.Th>
-            {isCandidate && (
-              <Table.Th w={120}>{t.cvs.apply || 'Apply'}</Table.Th>
-            )}
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {isLoading && (
+      <Table.ScrollContainer minWidth={600}>
+          <Table striped highlightOnHover>
+          <Table.Thead>
             <Table.Tr>
-              <Table.Td colSpan={4}>{t.attributes.loading}</Table.Td>
-            </Table.Tr>
-          )}
-          {positions?.map(pos => (
-            <Table.Tr key={pos.id}>
-              <Table.Td>
-                <Text fw={500}>{pos.title}</Text>
-                <Text size="xs" c="dimmed">{pos.shortDescription}</Text>
-              </Table.Td>
-              <Table.Td>{pos.attributeIds?.length ?? 0}</Table.Td>
-              <Table.Td>
-                <Group gap="xs">
-                  {pos.projectTags?.map(tag => (
-                    <Badge key={tag} size="sm" variant="light">{tag}</Badge>
-                  ))}
-                </Group>
-              </Table.Td>
-              <Table.Td>
-                <Group gap="xs" wrap="nowrap">
-                    <ActionIcon variant="subtle" onClick={() => openEdit(pos)}>
-                    <IconPencil size={16} />
-                    </ActionIcon>
-                    <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(pos.id)}>
-                    <IconTrash size={16} />
-                    </ActionIcon>
-                    <ActionIcon variant="subtle" color="blue" onClick={() => handleDuplicate(pos.id)}>
-                    <IconCopy size={16} />
-                    </ActionIcon>
-                </Group>
-                </Table.Td>
-
+              <Table.Th>{t.positions.title}</Table.Th>
+              <Table.Th>{t.positions.attributes}</Table.Th>
+              <Table.Th>{t.positions.tags}</Table.Th>
+              {isRecruiterOrAdmin && (
+                <Table.Th w={120}>{t.attributes.actions}</Table.Th>
+              )}
               {isCandidate && (
-                <Table.Td>
-                  <Button
-                    size="xs"
-                    onClick={() => handleCreateCV(pos.id)}
-                    loading={createCvMutation.isPending && selectedPositionId === pos.id}
-                  >
-                    {t.cvs.create || 'Create CV'}
-                  </Button>
-                </Table.Td>
+                <Table.Th w={120}>{t.cvs.apply || 'Apply'}</Table.Th>
               )}
             </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+          </Table.Thead>
+          <Table.Tbody>
+            {isLoading && (
+              <Table.Tr>
+                <Table.Td colSpan={isCandidate ? 5 : 4}>
+                  {t.attributes.loading}
+                </Table.Td>
+              </Table.Tr>
+            )}
+            {positions?.map((pos) => (
+              <Table.Tr key={pos.id}>
+                <Table.Td>
+                  <Text fw={500}>{pos.title}</Text>
+                  <Text size="xs" c="dimmed">
+                    {pos.shortDescription}
+                  </Text>
+                </Table.Td>
+                <Table.Td>{pos.attributeIds?.length ?? 0}</Table.Td>
+                <Table.Td>
+                  <Group gap="xs">
+                    {pos.projectTags?.map((tag) => (
+                      <Badge key={tag} size="sm" variant="light">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </Group>
+                </Table.Td>
+                {isRecruiterOrAdmin && (
+                  <Table.Td>
+                    <Group gap="xs" wrap="nowrap">
+                      <ActionIcon variant="subtle" onClick={() => openEdit(pos)}>
+                        <IconPencil size={16} />
+                      </ActionIcon>
+                      <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(pos.id)}>
+                        <IconTrash size={16} />
+                      </ActionIcon>
+                      <ActionIcon variant="subtle" color="blue" onClick={() => handleDuplicate(pos.id)}>
+                        <IconCopy size={16} />
+                      </ActionIcon>
+                    </Group>
+                  </Table.Td>
+                )}
+                {isCandidate && (
+                  <Table.Td>
+                    <Button
+                      size="xs"
+                      onClick={() => handleCreateCV(pos.id)}
+                      loading={
+                        createCvMutation.isPending && selectedPositionId === pos.id
+                      }
+                    >
+                      {t.cvs.create || 'Create CV'}
+                    </Button>
+                  </Table.Td>
+                )}
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
 
+      {/* Create / Edit Modal – only shown to recruiters/admins, but already guarded by condition */}
       <Modal
         opened={createEditOpened}
         onClose={close}
-        title={editPosition ? t.positions.editTitle : t.positions.createTitle}
+        title={
+          editPosition ? t.positions.editTitle : t.positions.createTitle
+        }
         size="lg"
       >
         <Stack>
           <TextInput
             label={t.positions.titleLabel}
             value={formValues.title}
-            onChange={e => setFormValues({ ...formValues, title: e.currentTarget.value })}
+            onChange={(e) =>
+              setFormValues({ ...formValues, title: e.currentTarget.value })
+            }
             required
           />
           <Textarea
             label={t.positions.shortDescription}
             value={formValues.shortDescription}
-            onChange={e => setFormValues({ ...formValues, shortDescription: e.currentTarget.value })}
+            onChange={(e) =>
+              setFormValues({ ...formValues, shortDescription: e.currentTarget.value })
+            }
             minRows={2}
           />
 
-          <Text size="sm" fw={500}>{t.positions.accessRules}</Text>
-          <Text size="xs" c="dimmed" mb="xs">{t.positions.accessRulesHint}</Text>
-          <RuleBuilder
-            rules={rules}
-            onChange={setRules}
-            attributes={ruleAttributes}
-          />
+          <Text size="sm" fw={500}>
+            {t.positions.accessRules}
+          </Text>
+          <Text size="xs" c="dimmed" mb="xs">
+            {t.positions.accessRulesHint}
+          </Text>
+          <RuleBuilder rules={rules} onChange={setRules} attributes={ruleAttributes} />
 
           <MultiSelect
             label={t.positions.attributes}
-            data={attrOptions.map(a => ({ value: a.value, label: a.label }))}
+            data={attrOptions.map((a) => ({ value: a.value, label: a.label }))}
             value={formValues.attributeIds}
-            onChange={(vals) => setFormValues({ ...formValues, attributeIds: vals })}
+            onChange={(vals) =>
+              setFormValues({ ...formValues, attributeIds: vals })
+            }
             searchable
             clearable
           />
@@ -281,16 +310,23 @@ export default function PositionsPage() {
             label={t.positions.tags}
             data={[]}
             value={formValues.projectTags}
-            onChange={(vals) => setFormValues({ ...formValues, projectTags: vals })}
+            onChange={(vals) =>
+              setFormValues({ ...formValues, projectTags: vals })
+            }
             placeholder="e.g. Python, SQL"
           />
           <NumberInput
             label={t.positions.maxProjects}
             value={formValues.maxProjects}
-            onChange={(val) => setFormValues({ ...formValues, maxProjects: val as number })}
+            onChange={(val) =>
+              setFormValues({ ...formValues, maxProjects: val as number })
+            }
             min={1}
           />
-          <Button onClick={handleSubmit} loading={createMutation.isPending || updateMutation.isPending}>
+          <Button
+            onClick={handleSubmit}
+            loading={createMutation.isPending || updateMutation.isPending}
+          >
             {editPosition ? t.attributes.save : t.positions.create}
           </Button>
         </Stack>

@@ -6,10 +6,19 @@ import image from './image.svg';
 import { useRouter } from 'next/navigation';
 import classes from './Welcome.module.css';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { authClient } from '@/lib/auth/auth-client';
+import { useEffect } from 'react';
 
 export function Welcome() {
+  const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
   const { t } = useLanguage();
+
+  useEffect(() => {
+      if (!isPending && session) {
+        router.replace('/feed');
+      }
+    }, [session, isPending, router]);
   
   const handleClick = () => {
     router.push('/login');

@@ -10,11 +10,11 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard, Roles } from '../auth/roles.guard';
 import type { AuthenticatedRequest } from '../auth/auth.guard';
 import db from '../../lib/db';
 import { user as userTable } from '../../lib/db/schema';
-import { eq, and, sql } from 'drizzle-orm';
-import { RolesGuard, Roles } from '../auth/roles.guard';
+import { eq, and, sql, ne } from 'drizzle-orm';
 
 @Controller('api/users')
 export class UsersController {
@@ -62,7 +62,23 @@ export class UsersController {
     return { success: true };
   }
 
-  // Admin‑only: change a user's role
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get()
+  async listAll() {
+    const users = await db
+      .select({
+        id: userTable.id,
+        name: userTable.name,
+        email: userTable.email,
+        role: userTable.role,
+        isBlocked: userTable.isBlocked,
+      })
+      .from(userTable)
+      .orderBy(userTable.name);
+    return users;
+  }
+
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
   @Patch(':id/role')
@@ -78,13 +94,10 @@ export class UsersController {
 
     // prevent the last admin from removing their own admin role
     if (body.role !== 'admin' && userId === req.user!.id) {
-      // Check if there are other admins
       const [row] = await db
         .select({ count: sql<number>`count(*)` })
         .from(userTable)
-        .where(
-          and(eq(userTable.role, 'admin'), sql`${userTable.id} != ${userId}`),
-        );
+        .where(and(eq(userTable.role, 'admin'), ne(userTable.id, userId)));
       if (row?.count === 0) {
         throw new ForbiddenException(
           'You are the only admin – role change denied',
@@ -97,5 +110,33 @@ export class UsersController {
       .set({ role: body.role })
       .where(eq(userTable.id, userId));
     return { success: true, role: body.role };
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch(':id/block')
+  async toggleBlock(
+    @Param('id') userId: string,
+    @Body() body: { isBlocked: boolean },
+  ) {
+    await db
+      .update(userTable)
+      .set({ isBlocked: body.isBlocked })
+      .where(eq(userTable.id, userId));
+    return { success: true };
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch(':id/delete')
+  async deleteUser(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') userId: string,
+  ) {
+    if (req.user!.id === userId) {
+      throw new ForbiddenException('You cannot delete yourself');
+    }
+    await db.delete(userTable).where(eq(userTable.id, userId));
+    return { success: true };
   }
 }

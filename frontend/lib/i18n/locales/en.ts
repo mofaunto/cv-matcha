@@ -152,6 +152,23 @@ export const en = {
     errorCreate: 'Failed to create CV.',
     viewCv: 'View CV',
   },
+  admin: {
+    title: 'Admin Panel – Users',
+    name: 'Name',
+    email: 'Email',
+    role: 'Role',
+    blocked: 'Blocked',
+    deleteConfirmTitle: 'Confirm Deletion',
+    deleteConfirm: 'Are you sure you want to delete this user?',
+    userDeleted: 'User deleted',
+    roleChanged: 'Role updated',
+    roleChangeError: 'Failed to update role',
+    userBlocked: 'User blocked',
+    userUnblocked: 'User unblocked',
+    blockError: 'Failed to update block status',
+    cannotDeleteSelf: 'You cannot delete yourself',
+    userDeleteError: 'Failed to delete user',
+  },
 }
 
 export type Translations = typeof en;

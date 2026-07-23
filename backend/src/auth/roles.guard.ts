@@ -1,11 +1,11 @@
-// check user role and permissions for different operations and routes
-
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthenticatedRequest } from './auth.guard';
 
 export const ROLES_KEY = 'roles';
-export const Roles = (...roles: string[]) => Reflect.metadata(ROLES_KEY, roles);
+
+import { SetMetadata } from '@nestjs/common';
+export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
 
 @Injectable()
 export class RolesGuard implements CanActivate {
