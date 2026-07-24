@@ -25,6 +25,15 @@ interface AccessRule {
   value: string;
 }
 
+interface AccessFailure {
+  attributeId: number;
+  attributeName: string;
+  operator: string;
+  expected: string;
+  actual: string | number | boolean | null;
+  missing: boolean;
+}
+
 type UserProfileAttrValue = Pick<
   typeof userProfileAttributes.$inferSelect,
   | 'valueString'
@@ -57,11 +66,12 @@ export class CvsService {
     if (!position) throw new NotFoundException('Position not found');
 
     const accessRules: AccessRule[] = JSON.parse(position.accessRules || '[]');
-    const hasAccess = await this.checkAccess(candidateId, accessRules);
-    if (!hasAccess) {
-      throw new ForbiddenException(
-        'You do not meet the access requirements for this position',
-      );
+    const failures = await this.checkAccess(candidateId, accessRules);
+    if (failures.length > 0) {
+      throw new ForbiddenException({
+        message: 'You do not meet the access requirements for this position',
+        failures,
+      });
     }
 
     const [cv] = await db
@@ -296,8 +306,17 @@ export class CvsService {
   private async checkAccess(
     candidateId: string,
     rules: AccessRule[],
-  ): Promise<boolean> {
-    if (!rules || rules.length === 0) return true;
+  ): Promise<AccessFailure[]> {
+    if (!rules || rules.length === 0) return [];
+
+    const attributeIds = rules.map((r) => r.attributeId);
+    const attributeDefs = await db
+      .select({ id: attributesTable.id, name: attributesTable.name })
+      .from(attributesTable)
+      .where(inArray(attributesTable.id, attributeIds));
+    const nameMap = new Map(attributeDefs.map((a) => [a.id, a.name]));
+
+    const failures: AccessFailure[] = [];
 
     for (const rule of rules) {
       const [userAttr] = await db
@@ -311,12 +330,36 @@ export class CvsService {
         )
         .limit(1);
 
-      if (!userAttr) return false;
+      const attributeName =
+        nameMap.get(rule.attributeId) ?? `Attribute #${rule.attributeId}`;
 
-      const value = this.getAttrValue(userAttr);
-      if (!this.evaluateRule(value, rule.operator, rule.value)) return false;
+      if (!userAttr) {
+        failures.push({
+          attributeId: rule.attributeId,
+          attributeName,
+          operator: rule.operator,
+          expected: rule.value,
+          actual: null,
+          missing: true,
+        });
+        continue;
+      }
+
+      const actualValue = this.getAttrValue(userAttr);
+      const passed = this.evaluateRule(actualValue, rule.operator, rule.value);
+      if (!passed) {
+        failures.push({
+          attributeId: rule.attributeId,
+          attributeName,
+          operator: rule.operator,
+          expected: rule.value,
+          actual: actualValue,
+          missing: false,
+        });
+      }
     }
-    return true;
+
+    return failures;
   }
 
   private getAttrValue(
