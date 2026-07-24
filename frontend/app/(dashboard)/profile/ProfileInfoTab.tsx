@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import {
   Avatar,
   Container,
@@ -19,6 +20,8 @@ import {
   Loader,
 } from '@mantine/core';
 import { IconTrash, IconPlus, IconUpload } from '@tabler/icons-react';
+import '@mantine/dates/styles.css';
+import { DatePickerInput } from '@mantine/dates';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   useProfileAttributes,
@@ -32,14 +35,10 @@ import {
 } from '@/hooks/use-attributes';
 import type { ProfileAttribute } from '@/lib/api/profile-attributes';
 import type { Attribute } from '@/lib/api/attributes';
-import '@mantine/dates/styles.css';
-import { DatePickerInput } from '@mantine/dates';
 
 interface CloudinaryResult {
   event: string;
-  info?: {
-    secure_url?: string;
-  };
+  info?: { secure_url?: string };
 }
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_NAME;
@@ -67,7 +66,6 @@ export default function ProfileInfoTab() {
   );
   const meAttrs = builtInAttrs.filter(a => a !== personalPhotoAttr);
 
-  // Name initials for the avatar placeholder
   const firstNameAttr = builtInAttrs.find(a => a.name === 'First Name');
   const lastNameAttr = builtInAttrs.find(a => a.name === 'Last Name');
   const initials = [firstNameAttr?.valueString, lastNameAttr?.valueString]
@@ -83,7 +81,62 @@ export default function ProfileInfoTab() {
 
   const existingIds = new Set(profileAttrs?.map(a => a.attributeId) ?? []);
   const availableAttrs = allAttrs?.filter(a => !existingIds.has(a.id)) ?? [];
+  const timersRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+      timers.clear();
+    };
+  }, []);
+
+  const getLatestVersion = useCallback(
+    (attrId: number) => {
+      const attr = profileAttrs?.find(a => a.id === attrId);
+      return attr?.version ?? 1;
+    },
+    [profileAttrs],
+  );
+
+  const scheduleSave = useCallback(
+    (attr: ProfileAttribute, value: Record<string, unknown>) => {
+      const existingTimer = timersRef.current.get(attr.id);
+      if (existingTimer) clearTimeout(existingTimer);
+
+      const timer = setTimeout(async () => {
+        timersRef.current.delete(attr.id);
+        try {
+          const sanitisedValue = { ...value };
+          if (sanitisedValue.valueDate instanceof Date) {
+            sanitisedValue.valueDate = (sanitisedValue.valueDate as Date).toISOString();
+          }
+
+          await updateMutation.mutateAsync({
+            id: attr.id,
+            version: getLatestVersion(attr.id),
+            value: sanitisedValue,
+          });
+          toast.success(t.profile.saveSuccess);
+        } catch (err: unknown) {
+          const message =
+            (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+            '';
+          if (message.includes('Version conflict')) {
+            toast.error(t.profile.versionConflict);
+            setTimeout(() => window.location.reload(), 1500);
+          } else {
+            toast.error(t.profile.saveError);
+          }
+        }
+      }, 5000);
+
+      timersRef.current.set(attr.id, timer);
+    },
+    [updateMutation, getLatestVersion, t],
+  );
+
+  // -----------------------------------------------------------
   const handleAddAttributes = async () => {
     if (selectedAttributeIds.length === 0) return;
     const ids = selectedAttributeIds.map(Number);
@@ -92,12 +145,8 @@ export default function ProfileInfoTab() {
     setSelectedAttributeIds([]);
   };
 
-  const handleValueChange = async (attr: ProfileAttribute, value: Record<string, unknown>) => {
-    try {
-      await updateMutation.mutateAsync({ id: attr.id, version: attr.version, value });
-    } catch (err) {
-      console.error('Update failed:', err);
-    }
+  const handleValueChange = (attr: ProfileAttribute, value: Record<string, unknown>) => {
+    scheduleSave(attr, value);
   };
 
   const getValueField = (type: string): string => {
@@ -159,7 +208,7 @@ export default function ProfileInfoTab() {
           value={currentValue ? new Date(currentValue as string) : null}
           onChange={(date) =>
             handleValueChange(attr, {
-              [field]: date ? date.toString() : null,
+              [field]: date,
             })
           }
           clearable
@@ -251,29 +300,28 @@ export default function ProfileInfoTab() {
 
       {customAttrs.length > 0 && (
         <Card padding="md">
-            <Text fw={600} mb="sm">{t.profile.info}</Text>
-
-            {Object.entries(groupedCustom).map(([catId, attrs]) => {
+          <Text fw={600} mb="sm">{t.profile.info}</Text>
+          {Object.entries(groupedCustom).map(([catId, attrs]) => {
             const cat = categories?.find(c => c.id === Number(catId));
             return (
-                <Card key={catId} mb="sm" padding="xs">
+              <Card key={catId} mb="sm" padding="xs">
                 <Text fw={500} mb="xs">{cat?.name ?? `Category ${catId}`}</Text>
                 <Stack>
-                    {attrs.map(attr => (
+                  {attrs.map(attr => (
                     <Group key={attr.id} justify="space-between" wrap="nowrap">
-                        <Text style={{ minWidth: 100 }}>{attr.name}</Text>
-                        <div style={{ flex: 1 }}>{renderValueEditor(attr)}</div>
-                        <ActionIcon color="red" onClick={() => removeMutation.mutate(attr.id)}>
+                      <Text style={{ minWidth: 100 }}>{attr.name}</Text>
+                      <div style={{ flex: 1 }}>{renderValueEditor(attr)}</div>
+                      <ActionIcon color="red" onClick={() => removeMutation.mutate(attr.id)}>
                         <IconTrash size={16} />
-                        </ActionIcon>
+                      </ActionIcon>
                     </Group>
-                    ))}
+                  ))}
                 </Stack>
-                </Card>
+              </Card>
             );
-            })}
+          })}
         </Card>
-    )}
+      )}
 
       <Modal
         opened={addModalOpen}

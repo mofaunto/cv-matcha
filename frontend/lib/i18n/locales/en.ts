@@ -131,6 +131,9 @@ export const en = {
     addAttribute: 'Add Attribute',
     selectAttribute: 'Choose an attribute',
     add: 'Add',
+    saveSuccess: 'Changes saved',
+    saveError: 'Failed to save changes',
+    versionConflict: 'Data was modified elsewhere. Refreshing…',
   },
   projects: {
     title: 'Projects',

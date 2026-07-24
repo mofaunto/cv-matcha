@@ -133,6 +133,9 @@ export const ru: Translations = {
     addAttribute: 'Добавить атрибут',
     selectAttribute: 'Выбрать атрибут',
     add: 'Добавить',
+    saveSuccess: 'Изменения сохранены',
+    saveError: 'Не удалось сохранить изменения',
+    versionConflict: 'Данные были изменены в другом месте. Обновление страницы',
   },
   projects: {
     title: 'Проекты',
