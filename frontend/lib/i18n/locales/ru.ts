@@ -166,6 +166,11 @@ export const ru: Translations = {
     addRuleButton: 'Добавить правило',
     applicants: 'Кандидаты',
     noApplicants: 'Пока нету кандидатов',
+    accessDeniedTitle: 'Требования доступа не выполнены',
+    accessDeniedMessage: 'Вы не соответствуете следующим требованиям для этой должности:',
+    attribute: 'Атрибут',
+    required: 'Требуется',
+    yourValue: 'Ваше значение',
   },
   cvs: {
     empty: 'Пока нет резюме.',

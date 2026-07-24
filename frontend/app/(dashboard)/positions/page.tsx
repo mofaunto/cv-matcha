@@ -52,6 +52,15 @@ import type { Position, Rule as ApiRule } from '@/lib/api/positions';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
+interface AccessFailure {
+  attributeId: number;
+  attributeName: string;
+  operator: string;
+  expected: string;
+  actual: string | number | boolean | null;
+  missing: boolean;
+}
+
 export default function PositionsPage() {
   const { t } = useLanguage();
   const { data: positions, isLoading } = usePositions();
@@ -87,6 +96,8 @@ export default function PositionsPage() {
     projectTags: [] as string[],
   });
   const [rules, setRules] = useState<Rule[]>([]);
+  const [accessFailures, setAccessFailures] = useState<AccessFailure[] | null>(null);
+  const [accessModalOpened, { open: openAccessModal, close: closeAccessModal }] = useDisclosure(false);
 
   const resetForm = () => {
     setFormValues({
@@ -181,21 +192,20 @@ export default function PositionsPage() {
         },
       });
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        (err as { message?: string })?.message ??
-        '';
-      if (message.includes('already have a CV')) {
-        toast.error(t.cvs.alreadyApplied || 'You have already applied to this position.');
-      } else if (message.includes('access requirements')) {
-        toast.error(t.cvs.notQualified || 'You do not meet the requirements for this position.');
+      const data = (err as { response?: { data?: { message?: string; failures?: AccessFailure[] } } })?.response?.data;
+      if (data?.failures) {
+        setAccessFailures(data.failures);
+        openAccessModal();
       } else {
-        toast.error(t.cvs.errorCreate || 'Failed to create CV.');
+        const message = data?.message ?? (err as { message?: string })?.message ?? '';
+        if (message.includes('already have a CV')) {
+          toast.error(t.cvs.alreadyApplied || 'You have already applied to this position.');
+        } else {
+          toast.error(t.cvs.errorCreate || 'Failed to create CV.');
+        }
       }
-    } finally {
-      setSelectedPositionId(null);
     }
-  };
+  }
 
   return (
     <Container fluid>
@@ -408,6 +418,52 @@ export default function PositionsPage() {
         ) : (
           <Text c="dimmed">{t.positions.noApplicants}</Text>
         )}
+      </Modal>
+
+      <Modal
+        opened={accessModalOpened}
+        onClose={closeAccessModal}
+        title={t.positions.accessDeniedTitle}
+        size="xl"
+      >
+        <Text mb="md">{t.positions.accessDeniedMessage}</Text>
+        <Table.ScrollContainer minWidth={500}>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>{t.positions.attribute}</Table.Th>
+                <Table.Th>{t.positions.required}</Table.Th>
+                <Table.Th>{t.positions.yourValue}</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {accessFailures?.map((f, idx) => {
+                let requiredText = '';
+                if (f.operator === 'true') requiredText = 'True';
+                else if (f.operator === 'false') requiredText = 'False';
+                else if (f.operator === 'equals') requiredText = f.expected;
+                else if (f.operator === 'not_equals') requiredText = f.expected;
+                else if (['>', '<', '>=', '<='].includes(f.operator))
+                  requiredText = `${f.operator} ${f.expected}`;
+                else requiredText = f.expected;
+
+                return (
+                  <Table.Tr key={idx}>
+                    <Table.Td>{f.attributeName}</Table.Td>
+                    <Table.Td>{requiredText}</Table.Td>
+                    <Table.Td>
+                      {f.missing ? (
+                        <Badge color="red">{t.cvs.missing}</Badge>
+                      ) : (
+                        String(f.actual)
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Modal>
     </Container>
   );

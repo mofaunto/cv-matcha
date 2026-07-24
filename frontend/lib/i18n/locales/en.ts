@@ -164,6 +164,11 @@ export const en = {
     addRuleButton: 'Add Rule',
     applicants: 'Applicants',
     noApplicants: 'No candidates yet',
+    accessDeniedTitle: 'Access Requirements Not Met',
+    accessDeniedMessage: 'You do not meet the following requirements for this position:',
+    attribute: 'Attribute',
+    required: 'Required',
+    yourValue: 'Your Value',
   },
   cvs: {
     empty: 'No CVs yet.',
