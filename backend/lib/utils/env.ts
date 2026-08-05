@@ -20,6 +20,7 @@ const EnvSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string(),
   SF_CLIENT_ID: z.string(),
   SF_USERNAME: z.string(),
+  SF_PRIVATE_KEY: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
