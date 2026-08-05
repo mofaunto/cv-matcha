@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import * as jsforce from 'jsforce';
 import * as jwt from 'jsonwebtoken';
 import env from 'lib/utils/env';
-import * as fs from 'fs';
-import * as path from 'path';
 
 export interface SalesforceCreateDto {
   firstName: string;
@@ -31,10 +29,8 @@ export class SalesforceService {
 
   private async login() {
     if (!this.conn.accessToken) {
-      const privateKey = fs.readFileSync(
-        path.join(process.cwd(), 'salesforce.key'),
-        'utf-8',
-      );
+      const privateKey = process.env.SF_PRIVATE_KEY || env.SF_PRIVATE_KEY;
+      if (!privateKey) throw new Error('Salesforce private key not configured');
 
       const assertion = jwt.sign(
         {
