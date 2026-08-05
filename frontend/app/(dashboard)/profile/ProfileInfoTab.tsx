@@ -19,7 +19,7 @@ import {
   MultiSelect,
   Loader,
 } from '@mantine/core';
-import { IconTrash, IconPlus, IconUpload } from '@tabler/icons-react';
+import { IconTrash, IconPlus, IconUpload, IconCloudUpload } from '@tabler/icons-react';
 import '@mantine/dates/styles.css';
 import { DatePickerInput } from '@mantine/dates';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -35,6 +35,7 @@ import {
 } from '@/hooks/use-attributes';
 import type { ProfileAttribute } from '@/lib/api/profile-attributes';
 import type { Attribute } from '@/lib/api/attributes';
+import { useSyncSalesforce } from '@/hooks/use-salesforce';
 
 interface CloudinaryResult {
   event: string;
@@ -56,14 +57,17 @@ export default function ProfileInfoTab() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [selectedAttributeIds, setSelectedAttributeIds] = useState<string[]>([]);
 
+  //salesforce
+  const [sfModal, setSfModal] = useState(false);
+  const syncMutation = useSyncSalesforce();
+  const [sfForm, setSfForm] = useState({ phone: '', title: '', company: '', location: '' });
+
   const attrMap = new Map<number, Attribute>(allAttrs?.map(a => [a.id, a]) ?? []);
 
   const builtInAttrs = profileAttrs?.filter(a => a.isBuiltIn) ?? [];
   const customAttrs = profileAttrs?.filter(a => !a.isBuiltIn) ?? [];
 
-  const personalPhotoAttr = builtInAttrs.find(
-    a => a.type === 'image' && a.name === 'Personal Photo',
-  );
+  const personalPhotoAttr = builtInAttrs.find( a => a.type === 'image' && a.name === 'Personal Photo' );
   const meAttrs = builtInAttrs.filter(a => a !== personalPhotoAttr);
 
   const firstNameAttr = builtInAttrs.find(a => a.name === 'First Name');
@@ -136,7 +140,6 @@ export default function ProfileInfoTab() {
     [updateMutation, getLatestVersion, t],
   );
 
-  // -----------------------------------------------------------
   const handleAddAttributes = async () => {
     if (selectedAttributeIds.length === 0) return;
     const ids = selectedAttributeIds.map(Number);
@@ -252,6 +255,17 @@ export default function ProfileInfoTab() {
     }
   };
 
+  //salesforce
+  const handleSync = () => {
+    syncMutation.mutate({
+      phone: sfForm.phone,
+      title: sfForm.title,
+      company: sfForm.company,
+      location: sfForm.location,
+    });
+    setSfModal(false);
+  };
+
   if (profileLoading) return <Loader color="teal" type="dots" />;
 
   return (
@@ -259,18 +273,23 @@ export default function ProfileInfoTab() {
       <Group justify="space-between" mb="lg">
         <Title order={2}>{t.profile.title}</Title>
         <Group>
+          <Button
+            size="xs"
+            leftSection={<IconCloudUpload size={14} />}
+            onClick={() => setSfModal(true)}
+            loading={syncMutation.isPending}
+          >
+            {t.profile.sendToSalesforce}
+          </Button>
           {personalPhotoAttr && (
             <>
               <Avatar
-                src={personalPhotoAttr.valueImageUrl ?? undefined}
                 size={60}
                 radius="xl"
                 alt="Profile"
                 color="initials"
                 name={initials || '?'}
-              >
-                {!personalPhotoAttr.valueImageUrl ? (initials || '?') : null}
-              </Avatar>
+              />
               <Button
                 size="xs"
                 leftSection={<IconUpload size={14} />}
@@ -348,6 +367,17 @@ export default function ProfileInfoTab() {
           {t.profile.add}
         </Button>
       </Modal>
+
+      <Modal opened={sfModal} onClose={() => setSfModal(false)} title={t.profile.syncSalesforce} size="md">
+        <Stack>
+          <TextInput label={t.profile.phone} value={sfForm.phone} onChange={e => setSfForm({...sfForm, phone: e.currentTarget.value})} />
+          <TextInput label={t.profile.jobTitle} value={sfForm.title} onChange={e => setSfForm({...sfForm, title: e.currentTarget.value})} />
+          <TextInput label={t.profile.company} value={sfForm.company} onChange={e => setSfForm({...sfForm, company: e.currentTarget.value})} />
+          <Button onClick={handleSync} loading={syncMutation.isPending}>
+            {t.profile.syncSalesforce}
+          </Button>
+        </Stack>
+    </Modal>
     </Container>
   );
 }
