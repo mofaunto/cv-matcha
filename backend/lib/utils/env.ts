@@ -18,6 +18,8 @@ const EnvSchema = z.object({
   DISCORD_CLIENT_SECRET: z.string(),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
+  SF_CLIENT_ID: z.string(),
+  SF_USERNAME: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;

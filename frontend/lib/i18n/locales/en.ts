@@ -134,6 +134,13 @@ export const en = {
     saveSuccess: 'Changes saved',
     saveError: 'Failed to save changes',
     versionConflict: 'Data was modified elsewhere. Refreshing…',
+    sendToSalesforce: 'Send to Salesforce',
+    sendToSalesforceSuccess: 'Data sent to Salesforce successfully!',
+    sendToSalesforceError: 'Failed to send data to Salesforce.',
+    syncSalesforce: 'Sync with Salesforce',
+    phone: 'Phone',
+    jobTitle: 'Job Title',
+    company: 'Company',
   },
   projects: {
     title: 'Projects',

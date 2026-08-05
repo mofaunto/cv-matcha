@@ -12,6 +12,7 @@ import { CvsModule } from './cvs/cvs.module';
 import { ProjectsModule } from './projects/projects.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LikesModule } from './likes/likes.module';
+import { SalesforceModule } from './salesforce/salesforce.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { LikesModule } from './likes/likes.module';
     ProjectsModule,
     DashboardModule,
     LikesModule,
+    SalesforceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

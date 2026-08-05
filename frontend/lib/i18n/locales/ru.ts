@@ -136,6 +136,13 @@ export const ru: Translations = {
     saveSuccess: 'Изменения сохранены',
     saveError: 'Не удалось сохранить изменения',
     versionConflict: 'Данные были изменены в другом месте. Обновление страницы',
+    sendToSalesforce: 'Отправить в Salesforce',
+    sendToSalesforceSuccess: 'Данные успешно отправлены в Salesforce!',
+    sendToSalesforceError: 'Не удалось отправить данные в Salesforce.',
+    syncSalesforce: 'Синхронизировать с Salesforce',
+    phone: 'Телефон',
+    jobTitle: 'Должность',
+    company: 'Компания',
   },
   projects: {
     title: 'Проекты',
